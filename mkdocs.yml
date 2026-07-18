@@ -1,0 +1,100 @@
+site_name: Rust Mastery Path
+site_description: A structured, module-wise Rust training program from entry level to master level.
+site_url: https://sigilipelli.github.io/rust-mastery-path/
+repo_url: https://github.com/SIGILIPELLI/rust-mastery-path
+repo_name: rust-mastery-path
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - content.code.copy
+    - content.code.annotate
+    - search.suggest
+    - search.highlight
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: index.md
+  - Privacy Policy: privacy.md
+  - "Level 1 · Entry":
+      - Overview: level-1/index.md
+      - "01 · Setup & First Program": level-1/01-setup.md
+      - "02 · Variables, Types & Ownership Basics": level-1/02-variables-types-ownership.md
+      - "03 · Control Flow": level-1/03-control-flow.md
+      - "04 · Functions": level-1/04-functions.md
+      - "05 · Structs & Enums": level-1/05-structs-enums.md
+      - "06 · Collections (Vec, String, HashMap)": level-1/06-collections.md
+      - "07 · Error Handling Basics (Option, Result)": level-1/07-error-handling-basics.md
+      - "08 · Pattern Matching": level-1/08-pattern-matching.md
+      - "09 · Modules & Cargo Project Structure": level-1/09-modules-cargo.md
+      - "10 · Project — CLI To-Do App": level-1/10-project-todo-cli.md
+  - "Level 2 · Intermediate":
+      - Overview: level-2/index.md
+      - "01 · Ownership & Borrowing Deep Dive": level-2/01-ownership-borrowing.md
+      - "02 · Lifetimes": level-2/02-lifetimes.md
+      - "03 · Traits & Generics": level-2/03-traits-generics.md
+      - "04 · Closures & Iterators": level-2/04-closures-iterators.md
+      - "05 · Error Handling Advanced": level-2/05-error-handling-advanced.md
+      - "06 · Testing in Rust": level-2/06-testing.md
+      - "07 · Smart Pointers": level-2/07-smart-pointers.md
+      - "08 · Files & the Standard Library": level-2/08-files-stdlib.md
+      - "09 · Crates & Dependency Management": level-2/09-crates-dependencies.md
+      - "10 · Project — Weather CLI": level-2/10-project-weather-cli.md
+  - "Level 3 · Advanced":
+      - Overview: level-3/index.md
+      - "01 · Concurrency": level-3/01-concurrency.md
+      - "02 · Async/Await Basics": level-3/02-async-await-basics.md
+      - "03 · Building CLIs with clap": level-3/03-clap-cli.md
+      - "04 · Working with Databases (rusqlite)": level-3/04-databases-rusqlite.md
+      - "05 · Building Web Services (axum)": level-3/05-web-services-axum.md
+      - "06 · Unsafe Rust Basics": level-3/06-unsafe-rust.md
+      - "07 · Design Patterns in Rust": level-3/07-design-patterns.md
+      - "08 · Testing Advanced & Benchmarking": level-3/08-testing-benchmarking.md
+      - "09 · Generics & Trait Objects": level-3/09-generics-trait-objects.md
+      - "10 · Project — REST API + SQLite": level-3/10-project-rest-api-sqlite.md
+  - "Level 4 · Master":
+      - Overview: level-4/index.md
+      - "01 · Advanced Async Patterns": level-4/01-advanced-async-patterns.md
+      - "02 · Performance Optimization": level-4/02-performance-optimization.md
+      - "03 · Macros": level-4/03-macros.md
+      - "04 · Building Production Services": level-4/04-production-services.md
+      - "05 · Security & Memory Safety Deep Dive": level-4/05-security-memory-safety.md
+      - "06 · Testing at Scale & CI": level-4/06-testing-at-scale-ci.md
+      - "07 · Deployment (Docker)": level-4/07-deployment-docker.md
+      - "08 · FFI Basics": level-4/08-ffi-basics.md
+      - "09 · Workspace & Large-Project Organization": level-4/09-workspace-organization.md
+      - "10 · Capstone Project": level-4/10-capstone-project.md
