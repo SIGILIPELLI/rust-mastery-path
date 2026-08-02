@@ -62,8 +62,19 @@ nav:
       - "08 · Pattern Matching": level-1/08-pattern-matching.md
       - "09 · Modules & Cargo Project Structure": level-1/09-modules-cargo.md
       - "10 · Project — CLI To-Do App": level-1/10-project-todo-cli.md
+  - "Level 2 · Intermediate":
+      - Overview: level-2/index.md
+      - "01 · Ownership & Borrowing Deep Dive": level-2/01-ownership-borrowing.md
+      - "02 · Lifetimes": level-2/02-lifetimes.md
+      - "03 · Traits & Generics": level-2/03-traits-generics.md
+      - "04 · Closures & Iterators": level-2/04-closures-iterators.md
+      - "05 · Error Handling Advanced": level-2/05-error-handling-advanced.md
+      - "06 · Testing in Rust": level-2/06-testing.md
+      - "07 · Smart Pointers (Box, Rc, RefCell)": level-2/07-smart-pointers.md
+      - "08 · Files & the Standard Library": level-2/08-files-stdlib.md
+      - "09 · Crates & Dependency Management": level-2/09-crates-dependencies.md
+      - "10 · Project — Weather CLI": level-2/10-project-weather-cli.md
 # --- auto-pruned stub levels (see AdSense low-value-content fix) ---
 exclude_docs: |
-  level-2/*.md
   level-3/*.md
   level-4/*.md
