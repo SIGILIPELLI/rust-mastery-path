@@ -52,4 +52,48 @@
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-1/10-project-todo-cli/</loc>
          <lastmod>2026-08-02</lastmod>
     </url>
+    <url>
+         <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/</loc>
+         <lastmod>2026-08-02</lastmod>
+    </url>
+    <url>
+         <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/01-ownership-borrowing/</loc>
+         <lastmod>2026-08-02</lastmod>
+    </url>
+    <url>
+         <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/02-lifetimes/</loc>
+         <lastmod>2026-08-02</lastmod>
+    </url>
+    <url>
+         <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/03-traits-generics/</loc>
+         <lastmod>2026-08-02</lastmod>
+    </url>
+    <url>
+         <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/04-closures-iterators/</loc>
+         <lastmod>2026-08-02</lastmod>
+    </url>
+    <url>
+         <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/05-error-handling-advanced/</loc>
+         <lastmod>2026-08-02</lastmod>
+    </url>
+    <url>
+         <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/06-testing/</loc>
+         <lastmod>2026-08-02</lastmod>
+    </url>
+    <url>
+         <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/07-smart-pointers/</loc>
+         <lastmod>2026-08-02</lastmod>
+    </url>
+    <url>
+         <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/08-files-stdlib/</loc>
+         <lastmod>2026-08-02</lastmod>
+    </url>
+    <url>
+         <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/09-crates-dependencies/</loc>
+         <lastmod>2026-08-02</lastmod>
+    </url>
+    <url>
+         <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/10-project-weather-cli/</loc>
+         <lastmod>2026-08-02</lastmod>
+    </url>
 </urlset>
