@@ -16,8 +16,8 @@ each level.
 |-------|-------|---------|
 | [Level 1 · Entry](level-1/index.md) | Language foundations & ownership basics | 9 topics + 1 project |
 | [Level 2 · Intermediate](level-2/index.md) | Traits, lifetimes, idiomatic Rust | 9 topics + 1 project |
-| Level 3 · Advanced (coming soon) | Concurrency, async, web services, databases | 9 topics + 1 project |
-| Level 4 · Master (coming soon) | Production systems & architecture | 9 topics + 1 capstone |
+| [Level 3 · Advanced](level-3/index.md) | Concurrency, async, web services, databases | 9 topics + 1 project |
+| [Level 4 · Master](level-4/index.md) | Production systems & architecture | 9 topics + 1 capstone |
 
 ## How to use this site
 
