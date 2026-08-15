@@ -2,98 +2,98 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/privacy/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-1/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-1/01-setup/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-1/02-variables-types-ownership/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-1/03-control-flow/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-1/04-functions/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-1/05-structs-enums/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-1/06-collections/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-1/07-error-handling-basics/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-1/08-pattern-matching/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-1/09-modules-cargo/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-1/10-project-todo-cli/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/01-ownership-borrowing/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/02-lifetimes/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/03-traits-generics/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/04-closures-iterators/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/05-error-handling-advanced/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/06-testing/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/07-smart-pointers/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/08-files-stdlib/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/09-crates-dependencies/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/rust-mastery-path/level-2/10-project-weather-cli/</loc>
-         <lastmod>2026-08-02</lastmod>
+         <lastmod>2026-08-15</lastmod>
     </url>
 </urlset>
