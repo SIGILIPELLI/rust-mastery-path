@@ -153,6 +153,32 @@ only cloning an `Arc` pointer, not the `Vec<Task>` behind it — but it's easy
 to accidentally wrap the wrong field in a way that makes each clone deep.
 Keep anything expensive behind `Arc`.
 
+## How It Actually Works
+
+The `MutexGuard`-across-`.await` error connects two mechanisms from earlier
+levels directly. Recall from Module 2 that `async fn` desugars into a state
+machine struct holding every local variable still alive across an `.await`
+point as a field of that struct; if a `MutexGuard` is one of those locals,
+it becomes a field of the generated `Future`. Tokio's multithreaded runtime
+can move a suspended task (and thus its whole state-machine struct) to a
+different worker thread between polls, which means that `MutexGuard` field
+would need to be `Send`. `std::sync::MutexGuard` isn't `Send` by design
+(some platforms' mutex implementations require the same OS thread to
+unlock what it locked) — so holding one across an await point makes the
+*entire* generated future non-`Send`, and the error surfaces wherever axum's
+router requires handler futures to be `Send`, which is unrelated code far
+from your `lock()` call. `tokio::sync::Mutex` fixes this because its guard
+has no such thread-affinity requirement — trading a small amount of async
+scheduling overhead for a `Send` guard.
+
+Cloning `AppState` per request being cheap is the `Rc`/`Arc` mechanism from
+Module 7 again: `#[derive(Clone)]` on a struct whose field is `Arc<Mutex<
+Vec<Task>>>` generates a clone that copies the outer struct's few machine
+words and bumps the `Arc`'s atomic reference count — it never touches the
+`Vec<Task>` data itself, which is why axum can clone state on every single
+incoming request without that cost scaling with how much data the state
+actually holds.
+
 ## Cheat sheet
 
 | Piece | Role |

@@ -156,6 +156,33 @@ Running `cargo build` (or `cargo run`) after adding a line to `[dependencies]`
 automatically downloads and compiles the crate from
 [crates.io](https://crates.io) — no separate install step needed.
 
+## How It Actually Works
+
+Modules (`mod`) are a purely compile-time namespacing and visibility
+mechanism — they don't correspond to separate compiled units, dynamic
+libraries, or runtime lookups the way packages do in some languages. The
+compiler resolves every `use` path and privacy check (`pub` vs private)
+during compilation and then erases the module structure entirely; at the
+machine-code level there's no notion of "module boundary" left, just
+functions and data laid out by the optimizer. This is why moving code
+between modules never affects performance — it's a source-organization
+concept that disappears before codegen.
+
+`cargo build` resolving `rand = "0.8"` involves two separate files working
+together: `Cargo.toml` states version *requirements* (semver ranges), while
+`Cargo.lock` records the exact versions actually resolved and downloaded —
+committing `Cargo.lock` for a binary project is what makes builds
+reproducible across machines and time, since re-resolving `"0.8"` a year
+later could otherwise pick a different patch release. Each dependency crate
+is compiled from source on your machine (crates.io distributes source, not
+prebuilt binaries) and then, critically, **statically linked** into your
+final binary by default — there's no `rand.dll`/`.so` your program loads at
+runtime, no dependency-resolution step at program startup. That's a direct
+consequence of Rust's ahead-of-time, whole-program-optimizing compilation
+model: the compiler can inline and optimize across crate boundaries because
+everything is available as source (or pre-compiled `.rlib` artifacts) at
+build time.
+
 ## Cheat sheet
 
 | Task | Command/Syntax |

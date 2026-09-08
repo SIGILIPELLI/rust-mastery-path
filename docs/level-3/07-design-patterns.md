@@ -215,6 +215,34 @@ manually implementing `std::ops::Add`/`Mul` per operation — there's no
 | Singleton (rare in Rust) | `once_cell`/`std::sync::OnceLock`, not a class-level static |
 | Observer | Channel (`mpsc`) or callback `Vec<Box<dyn Fn(...)>>` |
 
+## How It Actually Works
+
+The typestate pattern (`Post<Draft>`, `Post<Published>`) enforces its rule
+entirely at compile time and vanishes completely by runtime: `PhantomData<State>`
+is a zero-sized type, so `Post<Draft>` and `Post<Published>` are laid out
+identically in memory — same fields, same size, same bytes — and
+monomorphization (Module 3) generates entirely separate `impl` blocks per
+`State`, so `fn publish(self) -> Post<Published>` only even exists as a
+method on `Post<Draft>`. There is no runtime state field to check and no
+possible "wrong state" branch to forget to handle — the compiler simply
+never generates code that calls `.publish()` on an already-published post,
+because that method doesn't exist for that type. This is the strongest form
+of "make invalid states unrepresentable": not a runtime check that could be
+skipped, but an absence of the method from the type's very API.
+
+The `dyn Trait`-object-safety trap is a direct consequence of how trait
+objects are represented (Module 3's vtable explanation): a vtable stores
+function pointers whose signatures must be uniform and knowable without
+knowing the concrete `Self` type, so a method taking or returning `Self` by
+value can't have a vtable entry — the vtable can't know at compile time how
+large a same-type return value would be for whichever concrete type ends up
+behind the trait object. Builder methods consuming `self` by value rather
+than `&mut self` matters for the same ownership reason as the newtype
+pattern's move semantics from Module 1: passing `self` moves the whole
+builder value into the method, letting it destructure and reconstruct
+fields without cloning, whereas `&mut self` only ever gives you a borrow you
+can mutate in place, not one you can move fields out of.
+
 ## Exercise
 
 Extend the typestate example with a third state, `Archived`, reachable only

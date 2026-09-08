@@ -140,6 +140,32 @@ a string via `FromStr` — works for numbers and `String` out of the box, but
 a custom enum needs `#[derive(ValueEnum)]` or its own `FromStr` impl before
 it can be a typed argument with a default.
 
+## How It Actually Works
+
+`#[derive(Parser)]` is a procedural macro that runs at compile time,
+inspects your struct's field names, types, and attributes as a syntax tree,
+and generates a whole hand-written-looking `clap::Parser` implementation —
+argument definitions, a help-text renderer, and a `parse()` method that
+builds your struct field by field. None of this is reflection: by the time
+your binary runs, there's no metadata table clap consults to know your
+struct's shape, because the parsing code was already fully generated and
+type-checked against your exact struct at compile time, and the compiler
+would reject a mismatch (say, a required `String` field with no CLI value)
+as a normal type error inside the generated code, not a runtime surprise.
+
+The `String` vs `&str` trap traces straight back to ownership: clap builds
+your typed struct from `std::env::args()`, which (per Module 10's project)
+already handed you owned `String`s decoded from argv — there is no
+longer-lived buffer for a `&str` field to legally borrow from once the
+parsing function returns, so the borrow checker rejects `&'a str` fields
+exactly the way it would reject returning a reference to a local variable.
+Exit code 2 on a validation failure isn't magic either: it's clap's
+generated `try_parse()` returning `Err`, with your generated `main` (or the
+derive's own `main`-wrapping logic) printing the error to stderr and calling
+`std::process::exit(2)` before your actual program logic ever begins — the
+same `Result`-and-early-return pattern from Module 5, just wired up for you
+by the macro.
+
 ## Cheat sheet
 
 | Attribute | Effect |

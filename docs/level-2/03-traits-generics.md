@@ -281,6 +281,35 @@ runtime (like items loaded from a plugin or config).
 | `Default` | A sensible zero-value | `T::default()`, `..Default::default()` |
 | `Iterator` | Sequential production of values | `for` loops, adapters (next module) |
 
+## How It Actually Works
+
+The generics-vs-trait-objects tradeoff above is really a static-vs-dynamic
+dispatch tradeoff, and it's worth seeing what each costs in the compiled
+binary. Monomorphization means `Pair<i32>::method()` and
+`Pair<String>::method()` are two entirely separate functions in the final
+binary, each with its logic specialized and inlinable against the concrete
+type — the compiler can see through the call completely, which is why
+generic code can be just as fast as, or faster than, hand-written
+type-specific code (inlining across a monomorphized call is routine; across
+a trait-object call it usually isn't). The cost is code size: ten
+instantiations of a generic function mean roughly ten copies of its
+compiled body, which is the real reason large Rust binaries sometimes
+surprise people ("binary bloat" from monomorphization).
+
+`Box<dyn Summary>` takes the opposite trade: `dyn Summary` is an **unsized**
+type (the compiler doesn't know at compile time whether it's holding an
+`Article` or a `Tweet`, so it doesn't know the size), which is why it can
+only exist behind a pointer like `Box`, `&`, or `Rc`. That pointer is
+actually a **fat pointer** — two words instead of one: a data pointer to the
+heap-allocated value, and a pointer to a **vtable**, a static table of
+function pointers generated once per concrete type at compile time
+(`Article`'s vtable, `Tweet`'s vtable) holding the addresses of that type's
+trait-method implementations. Calling `item.summarize()` on a trait object
+means an indirect call through the vtable — one extra pointer dereference
+compared to the direct, inlinable call a monomorphized generic gets. That
+single indirect jump is the entire "small runtime dispatch overhead" the
+text above is referring to.
+
 ## Exercise
 
 Define a trait `trait Shape { fn area(&self) -> f64; fn name(&self) -> &str; }`.

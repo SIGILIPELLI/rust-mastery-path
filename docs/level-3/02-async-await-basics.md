@@ -214,6 +214,36 @@ be async. Reaching for `tokio::spawn` plus `JoinHandle::abort()` when you
 need cancellation *with* an explicit signal, instead of implicit
 drop-on-select, is often clearer than relying on this behavior by accident.
 
+## How It Actually Works
+
+An `async fn` is not a thread and doesn't run anything by itself — calling
+it just constructs a value: the compiler desugars the function body into an
+anonymous **state machine** implementing the `Future` trait, whose single
+required method is `fn poll(self: Pin<&mut Self>, cx: &mut Context) ->
+Poll<Self::Output>`. Every `.await` point becomes a state in that machine —
+the local variables that are still "alive" across an await get stored as
+fields of the generated struct so they survive being paused. Calling `poll`
+resumes execution from wherever it last returned `Poll::Pending`; nothing
+runs until an executor (like Tokio's runtime) actually calls `poll`
+repeatedly, which is why an `async fn` call with no `.await`ing runtime
+attached does literally nothing.
+
+This state machine is exactly why cancellation looks the way it does above:
+"dropping a future" is nothing more exotic than dropping that generated
+struct, and Rust's `Drop` runs on any value going out of scope regardless of
+what kind of value it is — a `Future`'s state machine gets no special
+treatment. Whatever local state was captured in the current state's fields
+gets dropped in place, but any code *after* the paused `.await` point that
+hasn't executed yet simply never becomes part of any live state to run —
+it's not skipped by a control-flow decision, it's just unreachable code in
+a state machine that stopped advancing. `Pin` exists because these
+generated structs are often **self-referential** (a reference into one
+field pointing at another field of the same struct, to represent borrows
+that live across an await point) — moving such a struct in memory would
+invalidate that internal pointer, so `Pin` is the compiler's way of
+guaranteeing the struct's address is fixed for as long as those internal
+references need it to be.
+
 ## Cheat sheet
 
 | Tool | Use when |

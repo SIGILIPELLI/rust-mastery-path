@@ -218,6 +218,34 @@ possible under the compile-time borrow rules.
 | `RefCell<T>` | Single owner | Interior mutability, runtime-checked | Runtime borrow-flag check | You need to mutate through what looks like an immutable reference |
 | `Rc<RefCell<T>>` | Multiple owners | Interior mutability, runtime-checked | Both of the above | Shared data that multiple owners all need to mutate |
 
+## How It Actually Works
+
+`Rc<T>` allocates its `T` on the heap alongside two extra counters — a
+strong count and a weak count — in a single block; `Rc::clone` doesn't copy
+the data, it just increments the strong count and returns a new pointer to
+the same allocation, and `Drop` decrements it, freeing the block only when
+the strong count hits zero. Critically, that increment/decrement is a plain
+non-atomic integer operation, which is precisely why `Rc<T>` is not
+`Send`/`Sync` and can't cross thread boundaries — two threads racing on that
+counter would be a data race. `Arc<T>` (Level 3) is the same idea with
+atomic increments/decrements, at the cost of atomic-instruction overhead
+even on a single thread, which is why the standard library gives you both
+rather than one type paying for thread-safety nobody asked for.
+
+`RefCell<T>` implements what's called **interior mutability**: it holds the
+`T` plus a hidden `Cell<isize>`-like borrow-tracking flag, and `.borrow()`
+/`.borrow_mut()` check and update that flag at runtime instead of the
+borrow checker verifying aliasing rules at compile time — `.borrow_mut()`
+while any `.borrow()` is still live increments into an invalid state and
+triggers `panic!("already borrowed")`. This is the runtime equivalent of the
+compile-time check from Module 1: same rule (one writer XOR many readers),
+enforced at a different phase, because the compiler's static analysis can't
+follow aliasing through shared pointers like `Rc`. `Rc<RefCell<T>>`
+combining both is why it's sometimes called "the both-a-little-slower
+version of `&mut`" — you're deliberately trading the zero-cost compile-time
+guarantee for the flexibility of shared, runtime-checked mutation graphs
+that the ownership model alone can't express.
+
 ## Exercise
 
 Model a simple shared shopping cart: define

@@ -162,6 +162,30 @@ with a compatible error type — the compiler enforces this, so if you forget,
 you'll get a clear error telling you the function's return type doesn't
 match.
 
+## How It Actually Works
+
+`Result<T, E>` and `Option<T>` are ordinary enums — no exception machinery,
+stack unwinding tables, or hidden control-flow paths in the compiled code
+the way `try`/`catch` needs. `?` is pure syntax sugar the compiler expands at
+compile time: `input.parse::<i32>()?` desugars to roughly `match
+input.parse::<i32>() { Ok(v) => v, Err(e) => return Err(From::from(e)) }`.
+That `From::from(e)` conversion is why `?` can propagate an error of one
+concrete type into a function returning a different (often broader) error
+type — the compiler inserts an implicit trait-based conversion at the
+propagation point, as long as the target error type implements `From` for
+the source error. Because this all resolves to a plain early `return`
+compiled into the function's normal control flow, there is zero runtime
+overhead beyond a branch — no exception object gets allocated, no stack gets
+unwound frame-by-frame looking for a handler.
+
+This is also why `?` needs a matching return type: the compiler must know at
+compile time which `Err` variant to construct and return, so it type-checks
+the conversion the same way it would type-check any other expression. Since
+errors are just values flowing through ordinary return statements, a `Result`
+you ignore is data you dropped, not an exception silently swallowed — the
+`#[must_use]` attribute on `Result` is what makes the compiler warn you when
+you discard one without handling it.
+
 ## Cheat sheet
 
 | Method | Works on | Behavior |

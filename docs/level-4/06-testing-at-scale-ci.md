@@ -203,6 +203,32 @@ any loop-based test so the failure output is actually actionable.
 | `cargo test --doc` | Just doc-comment examples | Stale examples in `///` comments |
 | `dtolnay/rust-toolchain@stable` | GitHub Actions setup step | Reproducible CI toolchain |
 
+## How It Actually Works
+
+Doc tests are a real compile-and-run step, not a documentation-linting
+feature: `cargo test` extracts every ` ```rust ` fenced block from `///`
+comments, wraps each one in an implicit `fn main() { ... }` (unless it
+already defines one), compiles it as its own tiny standalone crate linked
+against your library, and executes it — a failing `assert!` or a compile
+error inside the example fails exactly like a `#[test]` function would.
+This is why a doc example can "rot" silently: nothing forces you to notice
+an API signature changed until the doc test's separate compilation step
+catches the mismatch, since the example lives in a comment the normal
+build never type-checks on its own.
+
+Clippy and `rustc` being separate lint sets reflects how they're actually
+built: `rustc`'s own warnings come from lint passes baked directly into the
+compiler and run on every `cargo build`, while `clippy` is implemented as
+its own tool that hooks into the compiler via `rustc`'s driver API,
+re-running much of the same analysis (MIR, type information) but applying a
+much larger, separately maintained set of idiom and correctness lints on
+top. `-D warnings` matters because `cargo clippy` without it treats lint
+violations as warnings, and a process's exit code (what CI actually checks
+to decide pass/fail) is determined by whether compilation *errored*, not by
+how many warnings were printed — `-D warnings` promotes every clippy
+warning to a hard error precisely so its exit code reflects the lint
+results.
+
 ## Exercise
 
 Add a fourth CI step, `cargo test --doc`, and write a doc comment on

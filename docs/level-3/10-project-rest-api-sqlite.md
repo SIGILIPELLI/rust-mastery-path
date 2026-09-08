@@ -258,6 +258,29 @@ compiles the SQLite C library from source on first `cargo build`; subsequent
 builds are fast because it's cached, but a `cargo clean` resets that cost —
 worth knowing before assuming a slow CI run is a caching bug.
 
+## How It Actually Works
+
+Module privacy tripping people up across `main.rs`/`db.rs`/`handlers.rs`
+is the same tree-scoped visibility model from Level 1's modules chapter,
+just spread across a real multi-file crate: Rust's module tree is
+determined purely by `mod` declarations and file layout, and `pub` is
+checked relative to that tree at compile time with no runtime reflection to
+patch around a missing `pub` — a private field is invisible from another
+module regardless of how the code is organized on disk, which is why
+`Book`'s fields need to be individually `pub` (or the whole struct
+constructed only from within `db.rs`) for `handlers.rs` to build one.
+
+This whole project also demonstrates monomorphization and shared-ownership
+mechanics working together at a larger scale than any single earlier
+module: `AppState` wraps the database connection in `Arc<Mutex<Connection>>`,
+so cloning it per request (as in Module 5's axum chapter) is always a cheap
+pointer-and-atomic-count operation regardless of how many rows are in the
+`books` table, while `Connection`'s lack of `Sync` (Module 4) is exactly why
+the `Mutex` has to be there in the first place — every handler that touches
+the database serializes through that one lock, which is also why a
+slow query in one handler can visibly stall unrelated requests: there's
+only one real SQLite connection being shared, not a pool.
+
 ## Stretch goals
 
 - Add `PUT /books/{id}` to update an existing book's fields, returning `200`

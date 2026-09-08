@@ -182,6 +182,32 @@ parameter from context alone.
 | Requires | Trait bound compiles per call site | Trait must be object-safe |
 | Typical pointer | `&T`, owned `T` | `&dyn`, `Box<dyn>`, `Rc<dyn>`/`Arc<dyn>` |
 
+## How It Actually Works
+
+A trait's vtable (Module 3's fat-pointer explanation) is one fixed table of
+function pointers, generated *once* per concrete implementing type — this is
+precisely why a generic method breaks object safety. `fn process<U>(&self,
+item: U)` would need a different vtable entry for every possible `U` it
+could ever be called with, but the vtable is built at the point the concrete
+type is known, long before all future call sites exist; there's no way to
+size or populate a table for an open-ended set of monomorphized variants.
+A method taking `self` by value has a related problem: the vtable is reached
+through a fixed-size fat pointer, but "the size of `Self`" isn't known when
+generating code that only has `dyn Trait` — the vtable is exactly the
+mechanism that lets a `&self`/`&mut self` call work generically over unknown
+concrete sizes, and it breaks down the moment a signature needs `Self`'s
+concrete size or identity directly.
+
+The turbofish need (`largest::<i32>(&[])`) is about what type inference can
+observe, not a limitation of generics themselves: Rust's inference works
+bidirectionally from concrete values it can see in the call — an argument of
+type `Vec<i32>` fixes `T = i32` because unification runs against that
+argument's real type. When no argument in the call actually mentions `T`
+(an empty slice literal `&[]` gives the compiler no element to inspect),
+there is no expression left for unification to pin `T` down from, so the
+turbofish supplies the fact directly instead of leaving it to be inferred
+from data that isn't there.
+
 ## Exercise
 
 Add a third shape, `Triangle { base: f64, height: f64 }`, implementing

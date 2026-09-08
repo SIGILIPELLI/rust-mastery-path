@@ -179,6 +179,32 @@ mutable handle to this key's value, inserting a default first if it isn't
 there yet" — it's the classic tool for counting things, like tallying how
 many times each word appears in a block of text.
 
+## How It Actually Works
+
+`Vec<T>` is three machine words: a pointer to a heap buffer, a length, and a
+capacity. Pushing past capacity triggers a reallocation — typically doubling
+capacity — which is why appending in a tight loop is usually amortized O(1)
+per push rather than O(n): most pushes just write into already-allocated
+space, and the occasional reallocation-and-copy is spread across all the
+pushes that led up to it. `Vec::with_capacity(n)` skips the repeated
+doubling entirely when you know the size up front. `HashMap`'s unordered
+iteration isn't an implementation quirk you're stuck with — it's a
+deliberate security property: Rust's default hasher (SipHash) is keyed with
+a random seed generated per-`HashMap` at runtime specifically to make hash
+flooding attacks (an adversary crafting keys that all collide into the same
+bucket) infeasible, and the random seed is also why insertion order can
+differ between runs of the identical program.
+
+`.entry(key).or_insert(default)` avoids Rust's usual "look up, then look up
+again to mutate" tax: without it, checking `if map.contains_key(&k)` and then
+calling `map.get_mut(&k)` would each walk the hash table separately, and the
+borrow checker would actually reject holding a mutable reference from one
+call across the other. `entry()` instead does a single lookup and returns an
+`Entry` enum (`Occupied` or `Vacant`) representing that one bucket slot, so
+`or_insert` can act on it directly — one hash-table traversal instead of two,
+and no borrow conflict because there's only ever one live reference into the
+map at a time.
+
 ## Cheat sheet
 
 | Type | Owns its data? | Grows? | Common methods |

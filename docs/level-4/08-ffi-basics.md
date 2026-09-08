@@ -160,6 +160,33 @@ one.
 | Pass a buffer + length | `*const T` / `*mut T` plus a separate `usize` length |
 | Compile a C source file | `cc` crate in `build.rs` |
 
+## How It Actually Works
+
+By default, Rust's struct layout is deliberately unspecified — the compiler
+is free to reorder fields, insert padding, and even change layout between
+compiler versions to minimize size or improve cache behavior, because
+nothing outside the Rust type system is supposed to depend on the exact
+byte offsets. `#[repr(C)]` switches a struct to the C ABI's layout algorithm
+instead: fields in declaration order, padding inserted exactly as a C
+compiler would to satisfy each field's alignment requirement, with no
+reordering — matching the one deterministic rule both a Rust compiler and a
+C compiler agree to follow, which is the only reason two different
+compilers' output can safely read each other's structs as the same bytes.
+Without it, nothing detects the mismatch at compile time on either side —
+both sides believe they're reading valid data, they're just reading the
+wrong field, which is exactly why this class of bug produces silently wrong
+values instead of a crash.
+
+`extern "C"` fundamentally means "use the C calling convention" — the
+specific, platform-defined agreement about which registers hold arguments,
+which hold the return value, who cleans up the stack, and how the call
+stack frame is laid out. Rust's own (unstable, unspecified) calling
+convention for plain `fn` is free to differ, so `extern "C"` is what lets a
+Rust function be called correctly from C, or a C function be called
+correctly from Rust — it's the compiled-code-level agreement that makes
+`unsafe extern "C" { fn add_ints(...); }` link and call successfully instead
+of misreading arguments out of the wrong registers.
+
 ## Exercise
 
 Add a second C function, `int clamp(int value, int lo, int hi)`, to

@@ -264,6 +264,34 @@ so no thread ever needs to hold two locks at once.
 | `Mutex<T>` | Runtime-enforced exclusive access to a value |
 | `counter.lock().unwrap()` | Block until the lock is free; returns a `MutexGuard` |
 
+## How It Actually Works
+
+The compiler catches shared-mutation-across-threads at compile time through
+two marker traits, `Send` (safe to transfer ownership to another thread) and
+`Sync` (safe to share `&T` across threads), which are auto-derived
+structurally: a type is `Send`/`Sync` automatically if every field it
+contains is. `Rc<T>`'s reference count is a plain, non-atomic integer (as
+covered in Module 7), so `Rc<T>` is deliberately *not* `Sync`, and the
+compiler rejects moving one into `thread::spawn`'s closure as a type error
+long before any race could happen. `Arc<T>` is structurally almost identical
+but uses `AtomicUsize` for its count — atomic increment/decrement compiled
+to a hardware-level atomic instruction (`lock xadd` on x86) that's safe under
+concurrent access — which is what actually earns it the `Sync` marker.
+
+`Mutex<T>::lock()` returns a `MutexGuard<T>`, and this is where Rust's
+ownership model does something no other mainstream mutex API does: the
+guard is the *only* way to access the protected data (there's no separate
+`.unlock()` call, and no way to touch the inner value without going through
+the guard), and the lock is released automatically via the guard's `Drop`
+impl when it goes out of scope. This means the compiler enforces "you cannot
+touch this data without holding the lock" and "you cannot forget to unlock"
+as ownership rules, not as documentation you have to trust — a whole class
+of use-after-unlock and forgot-to-unlock bugs simply can't compile. Deadlocks
+survive this scheme because they're a *logical* ordering problem between two
+otherwise-correctly-guarded locks, not a memory-safety violation — which is
+exactly the boundary of what the borrow checker's static analysis is built
+to catch: it proves memory safety, not liveness.
+
 ## Exercise
 
 Write a program that spawns 5 threads, each simulating a "download" by

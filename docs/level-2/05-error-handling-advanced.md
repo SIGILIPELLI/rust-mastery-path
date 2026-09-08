@@ -226,6 +226,30 @@ purposes:
 panics on bad user input instead of returning `Err` takes away the caller's
 ability to handle it gracefully.
 
+## How It Actually Works
+
+`panic!` triggers **stack unwinding** by default on most platforms: it walks
+back up the call stack frame by frame, running each frame's destructors
+(`Drop` impls) as it goes, exactly the way a normal function return would,
+until it reaches either a `catch_unwind` boundary or the top of the thread,
+which then terminates. This is why a panic doesn't necessarily leak memory
+or leave files half-written — your `Drop` implementations (closing a file,
+unlocking a mutex, freeing a buffer) still run during the unwind, the same
+cleanup code that would run on normal scope exit. You can switch a binary to
+`panic = "abort"` in `Cargo.toml`, which skips unwinding entirely and kills
+the process immediately — smaller binary, no unwind tables, but no cleanup
+either; that's a deliberate size/behavior tradeoff, not a bug.
+
+`impl From<X> for AppError` plus `?` is the mechanism, not just convention:
+recall from Module 7 that `?` desugars to `return Err(From::from(e))`, so
+writing `From` impls for each underlying error type (`io::Error`,
+`ParseIntError`, ...) is literally what lets a single `?` at each call site
+convert into your unified `AppError` without you writing `.map_err(...)`
+everywhere. The trait dispatch here is resolved entirely at compile
+time — the compiler picks the concrete `From` impl matching the error type in
+scope, so there's no runtime cost to this error-unification pattern beyond
+constructing the enum variant itself.
+
 ## Cheat sheet
 
 | Tool | Use when |

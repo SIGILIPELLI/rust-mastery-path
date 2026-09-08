@@ -205,6 +205,31 @@ compile once moved to an integration test, purely because it wasn't `pub`.
 | `#[should_panic(expected = "...")]` | Test passes only if the panic message contains the substring |
 | `#[ignore]` | Skip by default; run explicitly with `cargo test -- --ignored` |
 
+## How It Actually Works
+
+Criterion's statistical machinery exists because measuring wall-clock time
+on a modern CPU is noisy at the microsecond scale it benchmarks — branch
+predictors warm up, the OS scheduler preempts your thread, caches get
+evicted by unrelated processes. `black_box` addresses a different, purely
+compile-time problem: LLVM's optimizer is aggressive enough to
+constant-fold or entirely eliminate a computation whose result is never
+observably used (dead code elimination), which would make a benchmark
+"measure" a function call that got optimized away to nothing. `black_box`
+compiles to an inline-assembly-like barrier that tells LLVM "treat this
+value as opaque, assume it could be read or written arbitrarily" — it's a
+compiler-optimizer instruction, not a runtime operation, which is exactly
+why it moved into `std::hint` rather than staying a criterion-only helper.
+
+Integration tests under `tests/` compiling as a wholly separate crate is a
+direct consequence of Rust's module-privacy model from Module 9 (Level 1):
+each file in `tests/` is compiled and linked as its own independent binary
+that depends on your library crate the same way an external user's `Cargo.toml`
+would, so it only sees whatever is marked `pub` in your crate's public API —
+there is no special "test mode" visibility exception the way `#[cfg(test)]`
+unit tests get via `use super::*` from inside the crate itself. That's the
+mechanical reason the same private helper function compiles fine from a
+unit test but fails to resolve from an integration test.
+
 ## Exercise
 
 Add a `#[test]` for `divide` that checks `divide(i32::MIN, -1)` — integer

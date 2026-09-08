@@ -236,6 +236,34 @@ true
 true
 ```
 
+## How It Actually Works
+
+Iterator chains like `words.iter().map(...).filter(...).take(2)` compile
+away completely — this is the flagship example of Rust's "zero-cost
+abstraction" claim, and it's worth understanding mechanically why. `Iterator`
+is a trait with one required method, `fn next(&mut self) -> Option<Self::
+Item>`, and each adapter (`Map`, `Filter`, `Take`, ...) is its own small
+generic struct that wraps the previous iterator and implements `next` in
+terms of it. Nothing runs until something finally calls `.next()` — a `for`
+loop, `.collect()`, `.sum()`, or similar — which is why adapters are called
+"lazy." When monomorphization specializes this whole chain for its concrete
+element type, LLVM can then **inline** every layer's `next()` into the
+consumer's loop, collapsing what looks like four nested struct calls into a
+single tight loop with no indirection — commonly identical machine code to
+the hand-written `for` loop with manual bounds checks and `if`s that most
+other languages would need.
+
+Closures achieve their own zero-cost story by compiling to an anonymous
+struct holding exactly the captured variables, with the closure body
+becoming that struct's `Fn`/`FnMut`/`FnOnce` trait implementation — there's
+no hidden heap allocation or environment object the way closures work in a
+garbage-collected language, unless you explicitly box one (`Box<dyn Fn(...)
+>`) for dynamic dispatch. Which of the three traits a closure gets depends
+on how it uses its captures: reading only implements `Fn`, mutating one
+implements `FnMut`, and moving a captured value out implements only
+`FnOnce` — the compiler infers the least restrictive trait it can, and
+that's exactly what governs whether you can call a closure multiple times.
+
 ## Cheat sheet
 
 | Method | Purpose | Consumes the iterator? |

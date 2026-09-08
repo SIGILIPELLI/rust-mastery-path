@@ -409,6 +409,29 @@ test stats::tests::counts_hours_above_threshold ... ok
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ```
 
+## How It Actually Works
+
+`print_report<S: WeatherSource>` being generic over the trait rather than
+taking a concrete `OpenMeteoClient` is monomorphization put to real use: the
+compiler generates one specialized copy of `print_report` for
+`OpenMeteoClient` in production and a separate specialized copy for
+`FakeSource` in tests, each with its `fetch` call inlined directly against
+that concrete type — the "swap in a fake for testing" pattern costs nothing
+at runtime because there's no dynamic dispatch involved at all, unlike the
+`dyn Trait` approach from Module 3 which would add a vtable indirection at
+every call. This is why the codebase can test `stats.rs`'s pure numeric
+logic with zero network calls: the generic boundary is a compile-time
+seam, not a runtime one, so substituting `FakeSource` doesn't touch the
+network client's code path at all.
+
+The unknown-city case reaching a clean `Error: could not find a city...`
+instead of a panic is the `?`-and-`From` machinery from Module 5 doing real
+work end to end: the HTTP client's error, the JSON-parsing error, and a
+custom "not found" error all get unified into one `AppError` type via `From`
+impls, so a single `?` at each fallible step propagates whichever failure
+occurred up to `main`, which prints it and exits non-zero — the same
+mechanism, scaled up from a toy example to an actual network-calling CLI.
+
 ## Stretch goals
 
 - Add a `FakeSource` implementing `WeatherSource` that returns a hand-built

@@ -199,6 +199,30 @@ cargo test              # skips ignored tests
 cargo test -- --ignored # runs ONLY the ignored tests
 ```
 
+## How It Actually Works
+
+`#[test]` is a procedural attribute macro: at compile time, `cargo test`
+compiles your crate in a special mode where every `#[test]`-annotated
+function is registered into a generated `main` for a separate **test
+harness binary** — the harness itself is what spawns a thread per test,
+catches panics via `catch_unwind` to determine pass/fail, and collects
+results, rather than any special runtime feature of Rust itself. A test
+"failing" is really just: the test function panicked, the harness caught
+that unwind at the thread boundary, and reported it as a failure instead of
+letting it crash the whole test binary — the same stack-unwinding mechanism
+from Module 5's panic discussion, repurposed as the pass/fail signal.
+
+Running tests on separate threads by default is why shared mutable state
+(a shared temp file, a global counter, an env var) causes flaky tests: two
+test threads racing on the same file descriptor have no ordering guarantee,
+and Rust's compile-time data-race prevention only protects memory *within*
+one process's type system — it has no way to know two independent test
+functions are implicitly sharing an external resource like a file path or
+port number. `cargo test -- --test-threads=1` forces sequential execution
+by telling the harness binary (via its own CLI parsing after the `--`) to
+use a single worker thread, trading speed for determinism when tests can't
+be made independent.
+
 ## Cheat sheet
 
 | Macro/attribute | Purpose |

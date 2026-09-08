@@ -133,6 +133,30 @@ runtime configuration.
 | Running as root | `useradd` + `USER` directive in the Dockerfile |
 | Runtime vs. compile-time config | `std::env::var` (runtime) vs. `env!()` macro (compile-time, baked in) |
 
+## How It Actually Works
+
+The dependency-caching layer trick works because `cargo build` decides what
+to recompile based on file content hashes recorded per-crate, and Docker
+decides whether to reuse a cached layer based on whether the *inputs to that
+`RUN` instruction* (the files `COPY`'d before it) changed at all. Copying
+`Cargo.toml`/`Cargo.lock` first and running a dependency-only build means
+Docker's own layer cache — not Cargo's — is what's actually being exploited:
+as long as those two manifest files are byte-identical to a previous build,
+Docker reuses the entire cached layer (skipping the `RUN cargo build`
+command outright) regardless of what changed in `src/` afterward, since that
+`COPY src ./src` step comes later and only invalidates layers after itself.
+
+`FROM scratch` needing a musl-linked binary is a direct consequence of how
+Linux dynamic linking works underneath a normal Rust build: `cargo build`
+on the default `x86_64-unknown-linux-gnu` target produces a binary whose
+ELF header lists `glibc`'s shared object as a runtime dependency, resolved
+by the OS's dynamic linker (`ld-linux.so`) at process start — an empty
+`scratch` image has no filesystem at all, so that linker and the shared
+library it needs simply aren't present for the kernel to load. The
+`musl` target instead statically links the C library directly into the
+binary at compile time, producing an ELF file with no external shared-object
+dependencies, which is the only reason a truly empty base image can run it.
+
 ## Exercise
 
 Add a `HEALTHCHECK` instruction to the Dockerfile that curls an `/healthz`

@@ -197,6 +197,35 @@ test suites too because they're all one `cargo test` invocation.
 | `dep.workspace = true` | Inherits the version/features from `[workspace.dependencies]` |
 | `core = { path = "../core" }` | Local sibling-crate dependency, always current |
 
+## How It Actually Works
+
+A workspace's single `Cargo.lock` reflects that Cargo treats all member
+crates as one unified dependency-resolution problem, not several
+independent ones sharing a directory: when computing what version of
+`serde` to use, Cargo walks the combined dependency graph of every member
+crate at once and picks one set of versions satisfying every member's
+constraints simultaneously, then compiles each shared dependency exactly
+once as a single `.rlib` artifact all requesting crates link against. This
+is also why `resolver = "2"` matters: the older (version-1) resolver unifies
+feature flags across a crate's normal, dev, and build dependency roles as if
+they were one dependency, so a feature enabled only for `cargo test`'s
+dev-dependencies could leak into what gets compiled for the release binary
+too — resolver 2 tracks those roles separately during resolution, which is
+a real behavioral difference in what code ends up linked into a release
+build, not just a metadata change.
+
+Path dependencies compiling against on-disk source with no version-bump
+requirement is the flip side of the crates.io publishing model: a
+crates.io dependency is fetched and locked to an immutable, versioned
+snapshot of source published at some point in the past, so bumping a
+version is literally how you tell downstream consumers "there's new source
+to fetch." A path dependency instead points Cargo directly at a live
+directory on your filesystem — there's no snapshot step at all, so every
+`cargo build` simply recompiles against whatever bytes are on disk right
+now, which is exactly why the workspace's fast within-repo iteration loop
+and the crates.io-consumer's need for explicit version bumps are two
+different mechanisms, not the same one behaving differently.
+
 ## Exercise
 
 Add a fourth workspace member, `crates/shared-test-utils`, containing a

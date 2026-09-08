@@ -231,6 +231,31 @@ handler serializes on the same lock; fine at this scale, and the same
 `r2d2_sqlite`-pool stretch goal from Level 3 applies here too if throughput
 ever mattered.
 
+## How It Actually Works
+
+This capstone is a synthesis point for the whole path's ownership story, and
+it's worth naming precisely which mechanisms are load-bearing where.
+Deriving codes from row ids rather than generating them randomly with a
+collision-retry loop sidesteps a genuinely hard concurrency problem: a
+retry loop needs to check-then-insert, and under concurrent requests hitting
+the same shared `Mutex<Connection>` (this project's single-connection
+tradeoff, same as Level 3's), a naive check-then-insert without the whole
+sequence being atomic under one lock acquisition would be a real
+time-of-check-to-time-of-use race — the id-derived scheme avoids needing
+that atomicity at all, since SQLite itself guarantees each inserted row gets
+a unique, monotonically increasing id as part of the insert.
+
+The hit counter incrementing specifically inside `resolve` (not `stats`)
+works because it's a plain `UPDATE ... SET hits = hits + 1` executed while
+holding the same `Mutex<Connection>` every other handler acquires — there's
+no separate atomic counter or cache to keep in sync with the database the
+way an `AtomicU64` (Level 4, module 04) would need to be; the lock guarantees
+each increment sees the true current row value with no other handler's
+write interleaved. This is the one-shared-connection design's actual
+guarantee: correctness by full serialization, at the throughput cost the
+"design decisions" section already names and the `r2d2_sqlite` pooling
+stretch goal exists to relax.
+
 ## Stretch goals
 
 - Add a `DELETE /links/{code}` endpoint and confirm a deleted code correctly

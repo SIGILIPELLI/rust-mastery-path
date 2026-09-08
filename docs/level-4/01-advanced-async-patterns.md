@@ -158,6 +158,34 @@ until it finished or the whole runtime shut down.
 | `tokio::time::timeout(d, fut)` | Races `fut` against a timer, `Err` on timeout |
 | `JoinError::is_cancelled()` | True if a joined task was aborted rather than panicked |
 
+## How It Actually Works
+
+`tokio::spawn` handing back a detached task connects to the `Future`
+state-machine model from Level 3: spawning puts the generated state-machine
+struct onto the runtime's task queue as an independent, heap-allocated unit
+the executor owns and polls on its own schedule — it is no longer tied to
+the stack frame that called `spawn`, which is exactly why it keeps running
+after that function returns. `handle.abort()` doesn't forcibly kill a thread
+or interrupt execution mid-instruction; it sets a cancellation flag the
+runtime checks at the task's next poll, at which point the runtime drops
+the future instead of resuming it — cancellation is cooperative and only
+takes effect at an actual `.await` (poll) boundary, never inside a long
+synchronous stretch of code between awaits.
+
+The borrowing restriction inside `select!` is the borrow checker doing
+exactly what it does everywhere else, just applied to macro-generated code:
+`select!` expands into a structure that polls each branch's future in turn
+and, once one is ready, drops all the others — since any branch could be the
+one that gets dropped, the compiler must prove that no branch's borrow
+depends on state another (possibly-dropped) branch owns, the same aliasing
+rule from Level 2's ownership chapter, just harder to read because the
+error points at the expanded macro rather than your source lines directly.
+`try_join!` short-circuiting on the first `Err` while `join!` always waits
+for everything is a design choice baked into each macro's generated `poll`
+logic, not a difference in the underlying futures themselves — both drive
+the same set of independent state machines, they just differ in when they
+decide to stop polling and return.
+
 ## Exercise
 
 Write an async function `fetch_with_retry(id: u32, delay_ms: u64, attempts:

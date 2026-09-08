@@ -174,6 +174,34 @@ cargo build -p cli       # builds just the `cli` member
 cargo test               # runs tests across all members
 ```
 
+## How It Actually Works
+
+Cargo features are **compile-time, additive flags** that gate code behind
+`#[cfg(feature = "...")]` attributes — enabling `tokio`'s `"rt"` feature
+means the conditional-compilation pass includes that module's source in the
+build at all; disabling it means that code is never even parsed into the
+final crate, not merely dead-code-eliminated later. This is why fewer
+features can mean a genuinely smaller binary and faster compile, not just a
+smaller download: unused feature-gated code never enters the compilation
+unit in the first place. Features are also required to be *additive* by
+convention (enabling a feature should never remove functionality) precisely
+because Cargo unifies features across your whole dependency graph — if two
+crates in your tree both depend on `tokio` but request different feature
+sets, Cargo enables the *union* of both requests for the single shared
+`tokio` build, so a feature that behaved differently rather than just
+added-to would silently break whichever crate didn't ask for it.
+
+A workspace's single shared `Cargo.lock` and `target/` directory exist
+because Cargo builds a workspace as one unified dependency graph: if `core`
+and `cli` both depend on `serde = "1"`, Cargo resolves and compiles it
+exactly once and both member crates link against that one compiled
+`.rlib`, rather than each member crate independently resolving and
+rebuilding its own copy. A path dependency (`core = { path = "../core" }`)
+skips crates.io entirely — Cargo just points the compiler at that local
+source tree directly, which is why edits to `core` are picked up on the
+very next `cargo build` in `cli` with no publish/version-bump/re-fetch cycle
+needed.
+
 ## Cheat sheet
 
 | Task | Command / syntax |

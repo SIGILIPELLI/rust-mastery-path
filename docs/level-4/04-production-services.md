@@ -172,6 +172,35 @@ eviction, not `SIGINT`) — `signal::ctrl_c()` alone only catches Ctrl+C /
 | Catch `SIGTERM` (not just Ctrl+C) | `tokio::signal::unix::signal(SignalKind::terminate())` |
 | Thread-safe counters without locks | `std::sync::atomic::{AtomicU64, AtomicBool}` |
 
+## How It Actually Works
+
+`AtomicU64`/`AtomicBool` compile to real hardware atomic instructions
+(`lock cmpxchg`, `lock add` on x86) rather than a lock-based emulation —
+they're atomic because the CPU itself guarantees the read-modify-write
+happens indivisibly, with no `Mutex` or OS involvement at all, which is why
+they're dramatically cheaper for a single counter than wrapping a plain
+`u64` in a `Mutex`. `Ordering` is a separate concern from atomicity: it
+controls how the *compiler and CPU* are allowed to reorder surrounding
+non-atomic memory operations relative to the atomic one. `Relaxed` only
+guarantees the operation itself is atomic, with no ordering guarantee about
+anything else in memory around it — fine for an independent counter nobody
+else's visibility depends on. `Release`/`Acquire` form a pairing: a
+`Release` store guarantees every ordinary write that happened *before* it in
+program order becomes visible to any thread that later does an `Acquire`
+load of that same atomic and sees the new value — that's the actual
+mechanism that makes "the cache was populated before the flag flipped"
+provably true across threads, not just true by coincidence of timing.
+
+Graceful shutdown works by threading a future through
+`with_graceful_shutdown` that the server polls alongside every accepted
+connection: when that future resolves (because your `SIGTERM`/`ctrl_c`
+handler completed), the server stops calling `accept()` on its listening
+socket but leaves already-spawned per-connection tasks running until each
+one's future naturally completes — this is ordinary async task management
+from Level 3, not special shutdown magic, just a `select!`-shaped race
+between "keep accepting" and "shutdown signal fired" wired into axum's
+serve loop.
+
 ## Exercise
 
 Add a `SIGTERM` handler alongside the existing `ctrl_c` branch in

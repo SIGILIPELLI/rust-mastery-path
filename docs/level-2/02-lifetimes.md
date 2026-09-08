@@ -181,6 +181,34 @@ literals, values leaked intentionally, or globals); using it to paper over a
 lifetime error usually just moves the error somewhere else, or forces you to
 `.clone()` data that didn't need cloning.
 
+## How It Actually Works
+
+Lifetime parameters like `'a` are not runtime values, types, or anything
+that exists after compilation — they're purely a notation you use to tell
+the borrow checker facts it can't infer on its own about *relationships*
+between input and output reference lifetimes. `fn longest<'a>(x: &'a str, y:
+&'a str) -> &'a str` doesn't mean "x and y must literally live the same
+length of time" — it means "the returned reference's lifetime is the
+intersection (the shorter) of whatever `'a` gets instantiated to for this
+call," and the caller's borrow checker then uses that contract to verify the
+returned reference isn't used past when either input becomes invalid. This
+is exactly the same MIR-level dataflow analysis from Module 1's borrowing
+discussion, just needing an explicit annotation when the relationship spans
+a function boundary the compiler can't see through automatically — inside a
+single function body, lifetimes are always inferred, never written.
+
+`'static` is the special case where that region is "the whole program" —
+literally true for string literals because the compiler embeds their bytes
+directly into the binary's read-only data section (`.rodata`), giving them
+an address that's valid for the process's entire lifetime with no
+allocation or deallocation ever happening. Slapping `'static` on a reference
+that doesn't actually point at program-lifetime data doesn't create that
+guarantee — it just asserts something false to the compiler, which is why
+the fix that "worked" is usually the borrow checker forcing you toward
+`'static` by making you `.clone()` the data into an owned value instead
+(trading a borrow for real ownership) rather than the annotation itself
+solving anything.
+
 ## Cheat sheet
 
 | Syntax | Meaning |

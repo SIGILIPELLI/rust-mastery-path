@@ -160,6 +160,31 @@ fn main() {
 these attributes is far more common than hand-writing the trait
 implementations yourself.
 
+## How It Actually Works
+
+An enum like `Shape` is laid out in memory as a **tagged union**: a small
+integer discriminant (which variant is active) followed by enough bytes to
+hold the largest variant's payload, sized to fit whichever variant needs the
+most space — a `Circle(f64)` and `Rectangle(f64, f64)` share one memory
+layout sized for the bigger of the two. `match` compiles to a jump table or
+chain of discriminant comparisons, and because the compiler *knows* the
+exhaustive set of variants at compile time, it can check exhaustiveness
+statically — that's the mechanism behind "adding a variant breaks every
+non-exhaustive match," not a lint but a hard compile error rooted in the
+enum's closed, known-at-compile-time shape. Rust also applies "niche
+optimization" for common cases: `Option<&T>` is the same size as `&T` alone,
+because a null pointer value is impossible for a reference and gets reused
+as the `None` tag for free.
+
+`#[derive(Debug, Clone, PartialEq)]` is a compiler-plugin-like mechanism
+called a **procedural macro** that runs at compile time, inspects the
+struct's field list via a syntax tree, and generates ordinary trait `impl`
+blocks as if you'd hand-written them — `Clone` becomes a method that clones
+each field in turn, `PartialEq` becomes a field-by-field `==` chain. There is
+no runtime reflection involved: by the time your program runs, `derive` has
+already disappeared, replaced by plain generated code that the rest of the
+compiler optimizes exactly like anything else.
+
 ## Cheat sheet
 
 | Concept | Syntax |

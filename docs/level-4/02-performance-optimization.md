@@ -127,6 +127,35 @@ estimate for a real workload.
 | `Vec::with_capacity(n)` | Same idea as `String::with_capacity`, for growable collections |
 | Avoid `.clone()` in loops | Each clone is a real allocation + copy; borrow instead where possible |
 
+## How It Actually Works
+
+`String`/`Vec`'s growth strategy explains exactly why `with_capacity`
+matters and by how much: without it, each push that exceeds current
+capacity triggers a reallocation that (in the standard library's
+implementation) roughly doubles capacity and copies every existing byte into
+the new buffer — for `n` pushes with no pre-reservation, the total bytes
+copied across all reallocations sums to a geometric series that's still
+amortized O(n) overall, but with a real constant-factor cost from the actual
+memmove work and from old buffers being freed and immediately re-allocated
+elsewhere. `with_capacity(n)` collapses that entire series into one
+allocation and zero copies, which is why the debug-vs-release gap in this
+module's benchmark is so much larger for the naive version — release-mode
+LLVM can vectorize the copying work but can't eliminate the reallocations
+themselves.
+
+The generic-vs-`dyn` gap only shows up in release builds because it's
+fundamentally an inlining story: debug builds disable most LLVM
+optimization passes (including inlining) to keep compile times low and
+stack traces accurate, so a monomorphized generic call and a vtable call
+both remain genuine, non-inlined function calls in debug mode — the
+indirection cost that normally distinguishes them barely registers next to
+the overhead debug builds already carry everywhere. Only in `--release`
+does LLVM aggressively inline the monomorphized version directly into the
+loop body (impossible for the vtable version, since the concrete
+implementation isn't known until runtime), which is when the real
+zero-cost-abstraction gap between the two dispatch strategies actually
+appears in the numbers.
+
 ## Exercise
 
 Add a third string-building variant, `build_report_iter`, using

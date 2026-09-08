@@ -129,6 +129,31 @@ fn main() {
 once empty) — `while let` loops for as long as the pattern keeps matching
 `Some`, stopping automatically at `None`.
 
+## How It Actually Works
+
+`match` compiles to a **decision tree**, not a linear chain of `if`
+comparisons — the compiler analyzes all the arms together and builds an
+efficient branching structure (often a jump table for simple enum
+discriminants, or a tree of tests for structural patterns), so matching
+against ten variants isn't ten sequential checks in the worst case. This is
+also the same machinery that powers exhaustiveness checking: the compiler
+literally constructs the space of possible values the scrutinee's type can
+take and verifies your arms cover all of it, which is why adding a variant to
+an enum turns every `match` on it elsewhere in the codebase that lacks a
+wildcard `_` arm into a compile error instead of a silent runtime bug.
+
+`if let Some(v) = config_value` and `while let` are sugar over that same
+`match` machinery, just for the single-pattern case — `if let PAT = EXPR {
+BODY }` desugars to `match EXPR { PAT => BODY, _ => {} }`. `while let Some(top)
+= stack.pop()` desugars to a `loop` containing a `match` that `break`s on the
+non-matching arm: `loop { match stack.pop() { Some(top) => { ... }, None =>
+break } }`. Since `Vec::pop` returns `Option<T>` by *moving* the popped
+element out rather than returning a reference, each iteration also
+transfers ownership of `top` to the loop body — no separate bounds check or
+null test is needed, because "empty" is represented as `None`, a value the
+match has to handle explicitly rather than a sentinel that could be
+forgotten.
+
 ## Cheat sheet
 
 | Construct | When to use |

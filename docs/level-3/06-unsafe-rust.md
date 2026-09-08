@@ -126,6 +126,33 @@ need explicit `unsafe { }` blocks to actually perform pointer derefs or
 other unsafe operations; the two `unsafe`s answer different questions
 (caller's obligation vs. this specific operation's justification).
 
+## How It Actually Works
+
+`unsafe` unlocks exactly five operations and nothing else: dereferencing a
+raw pointer, calling an `unsafe fn`, accessing or mutating a `static mut`,
+implementing an `unsafe trait`, and accessing a union field. Everything else
+you already rely on — the borrow checker's move/borrow analysis, type
+checking, exhaustiveness checking in `match`, trait resolution — stays
+fully active inside an `unsafe` block; `unsafe` is not a mode switch that
+turns Rust into C, it's a narrow permission grant for those five specific
+capabilities the compiler otherwise can't verify are sound. That's why the
+`split_at_mut_manual`-style pattern above still needs safe-Rust bookkeeping
+(bounds checks, index arithmetic) surrounding the raw-pointer arithmetic
+that only the `unsafe` block itself performs.
+
+The reason `unsafe` code can still cause real corruption despite this
+narrow scope is that it's opting *out* of the specific guarantees the
+borrow checker or runtime bounds-checker would otherwise enforce for that
+one operation — a raw pointer carries none of a reference's compiler-tracked
+lifetime, so nothing stops it from outliving what it points to; a
+`static mut` carries no compiler-enforced exclusivity, so nothing stops two
+threads from racing on it (hence the `SAFETY:` comment above having to argue
+the program is single-threaded by other means, since the compiler itself
+can no longer prove it). This is the actual contract: `unsafe` shifts the
+burden of proof for one narrow guarantee from "the compiler checks it" to
+"the programmer asserts it in a comment and had better be right," while
+every other guarantee in the type system keeps working exactly as before.
+
 ## Cheat sheet
 
 | Operation | Why it needs `unsafe` |

@@ -162,6 +162,31 @@ fn main() {
 }
 ```
 
+## How It Actually Works
+
+`if`/`else` and `loop` producing a value (`let x = if cond { 1 } else { 2 };`
+or `let x = loop { break 5; };`) is not syntactic sugar bolted on top — in
+Rust's grammar, `if` and `loop` are **expressions**, full stop, the same
+category as `1 + 1` or a function call. The compiler type-checks every arm of
+an `if`/`else` and requires them to unify to the same type precisely because
+the whole construct has to produce one value of one type, just like any other
+expression; an `if` with no `else` is only legal without a trailing value
+because it implicitly evaluates to `()` (unit) on the untaken path. This is
+why there's no ternary operator in Rust — `if`/`else` already does that job
+directly.
+
+`for i in 1..=10` compiles down to calling `.into_iter()` on the range and
+then repeatedly calling `.next()` on the resulting iterator inside a `loop`,
+checking each `Option` it returns and breaking on `None` — the desugared
+form is roughly `let mut it = (1..=10).into_iter(); loop { match it.next() {
+Some(i) => { ... }, None => break } }`. There is no hidden index variable or
+bounds check inserted by the compiler the way a C `for` loop needs one;
+LLVM typically inlines this iterator machinery away entirely in release
+builds, so the compiled loop is often identical to hand-written pointer
+arithmetic — this is the "zero-cost abstraction" idea in action: the
+high-level, safe `for` loop and manual iteration produce the same machine
+code.
+
 ## Cheat sheet
 
 | Construct | Produces a value? | Typical use |

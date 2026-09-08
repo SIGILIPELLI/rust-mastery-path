@@ -146,6 +146,30 @@ matches what the compiler itself would say. Install VS Code, then install
 project you open. (RustRover from JetBrains is a solid paid alternative if
 you prefer a full IDE.)
 
+## How It Actually Works
+
+`rustc` is a single, ahead-of-time compiler pipeline — no separate linker
+step you have to think about, no JIT, no VM to ship alongside the binary.
+Source goes through several intermediate representations before machine code:
+Rust source → **AST** → **HIR** (High-level IR, roughly desugared Rust) →
+**MIR** (Mid-level IR, where borrow-checking actually happens) → **LLVM IR** →
+native machine code via LLVM's backend. This is why `cargo build` feels slow
+compared to an interpreted language starting up: the compiler is doing full
+type inference, trait resolution, borrow checking, and LLVM optimization
+passes before you get an executable, and why the payoff is a binary with no
+runtime interpreter overhead at all.
+
+`cargo build` and `cargo run` skip recompilation of unchanged code by
+checking file hashes and dependency graphs recorded in `target/debug/.fingerprint/`
+and `Cargo.lock` — this incremental compilation cache is why the *second*
+`cargo run` after a one-line edit is dramatically faster than the first.
+`--release` re-runs LLVM with optimization level 3 and strips debug
+assertions (like integer-overflow panics), trading longer compile times for
+a binary that can be 10-30x faster at runtime — the difference matters
+because Rust's whole value proposition is compiling abstractions down to
+code as tight as hand-written C, and `--release` is the only build mode
+where that promise actually gets cashed in.
+
 ## Exercise
 
 Use `cargo new greeter` to scaffold a new project. Edit `src/main.rs` so

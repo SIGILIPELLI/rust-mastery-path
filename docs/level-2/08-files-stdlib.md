@@ -210,6 +210,32 @@ string it fills, so comparing or printing without trimming leaves a stray
 `\n` that's easy to miss until it causes a confusing bug (like a name that
 "looks right" but fails an equality check).
 
+## How It Actually Works
+
+`std::io` types like `Stdin`/`Stdout` are thin, buffered wrappers around
+raw OS file descriptors (fd 0/1 on Unix, handles on Windows) — `read_line`
+issues a `read` syscall into an internal buffer and copies decoded UTF-8
+bytes into your `String`, growing its heap allocation as needed the same
+way `Vec::push` does. `print!` writes into a line-buffered (when attached to
+a terminal) or block-buffered (when piped) internal buffer rather than
+issuing a syscall per call, which is exactly why it needs an explicit
+`.flush()`: without it, "Enter your name: " can sit in the buffer,
+unflushed, while your program blocks waiting for `stdin` input the user
+never sees a prompt for. `println!` appends `\n`, and on most buffering
+modes a newline is what triggers an automatic flush — that's the actual
+reason `println!` "just works" while `print!` needs help.
+
+`Path`/`PathBuf` solve a problem that's genuinely about the target platform,
+not just style: on Windows, path separators, drive letters, and UNC
+prefixes have different rules than POSIX paths, so `Path` is built as a thin
+wrapper over an `OsStr` (a string type that can hold platform-native,
+possibly-non-UTF-8 data like arbitrary Windows filenames) rather than a
+plain `String`. `.join()` and `.push()` inspect the platform's separator
+convention at compile time (via `cfg` conditionals compiled into the std
+library for your target) and insert the right one — the portability isn't
+runtime detection, it's a different `std` build per target that Cargo
+already selected when it compiled your dependencies for your platform.
+
 ## Cheat sheet
 
 | Task | Tool |

@@ -233,6 +233,34 @@ Slices are why `fn print_length(s: &str)` is generally preferred over
 borrow of a `String`, a string literal, or a slice of either, while `&String`
 only accepts the first.
 
+## How It Actually Works
+
+References carry zero runtime metadata beyond the address they point to — a
+`&i32` is exactly one machine word, exactly like a raw pointer, and
+dereferencing it is a single load instruction with no bounds check, no
+reference count, no lock. All the safety comes from a *static* analysis
+called the **borrow checker**, which runs on MIR (mid-level IR, after your
+code is desugared and control-flow-graphed) and computes, for every
+reference, the region of program points over which it's "alive" — its
+lifetime. The rule the borrow checker enforces is: at any single program
+point, either one `&mut` reference exists, or any number of `&` references
+exist, never both — and it proves this by tracking, for each borrow, exactly
+where that borrow's lifetime region ends (its last use, under NLL —
+non-lexical lifetimes — not necessarily the end of the enclosing scope).
+None of this analysis leaves any trace in the compiled binary; by the time
+LLVM sees the code, all that's left is plain loads and stores.
+
+Field-level "split borrows" (`&mut p.x` and `&mut p.y` simultaneously) work
+because the borrow checker can see the concrete field projections at compile
+time and prove the two memory regions are disjoint — but a method call
+`p.some_method()` is opaque to that analysis (the compiler doesn't inline
+and re-derive field access through arbitrary function calls before borrow
+checking), so it must conservatively borrow the entire struct. Slices
+(`&[T]`, `&str`) are two words — pointer plus length — computed once at
+slicing time; indexing then still bounds-checks against that stored length
+at each access, which is the one small runtime cost slices do pay in
+exchange for memory safety without a garbage collector.
+
 ## Cheat sheet
 
 | Situation | Allowed? |

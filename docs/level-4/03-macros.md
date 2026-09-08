@@ -218,6 +218,33 @@ actually produced, which is usually the fastest way to find the real bug.
 | Hygiene | Automatic (caller/macro names don't collide) | Manual — you construct identifiers yourself |
 | Debugging | `cargo expand`, careful pattern reading | `cargo expand`, `eprintln!` inside the macro fn |
 
+## How It Actually Works
+
+Macro expansion happens in a dedicated compiler phase before name
+resolution, type checking, or borrow checking ever run — both `macro_rules!`
+and proc macros operate purely on syntax (token trees), producing more Rust
+source that then gets fed back through the normal front-end. This ordering
+is exactly why macro-generated code is type-checked with the same rigor as
+hand-written code (there's no separate, weaker path), and why errors inside
+expanded code report spans pointing at the macro invocation rather than the
+generated line — the compiler tracks provenance per token specifically so
+error messages can point somewhere a human actually wrote something, even
+though the AST it's type-checking was synthesized.
+
+`macro_rules!`'s "automatic hygiene" is a real, enforced property, not just
+convention: each macro expansion is tagged with a syntax-context marker, and
+identifiers introduced *by* the macro (a local variable the macro itself
+declares) can't accidentally capture or collide with identifiers from the
+call site, even if both happen to be spelled the same way — the compiler
+treats them as distinct names internally despite printing identically. Proc
+macros lose this for free because they build raw token streams via `quote!`
+without that hygiene-context bookkeeping automatically applied to every
+generated identifier, which is why a derive macro generating a helper
+function has to actively avoid plausible name collisions (often by using
+name-mangling schemes like prefixing with `__` or the trait name) rather
+than relying on the compiler to keep them separate the way `macro_rules!`
+would.
+
 ## Exercise
 
 Extend `describe_derive` to also count fields for enums (currently

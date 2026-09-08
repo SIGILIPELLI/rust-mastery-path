@@ -158,6 +158,31 @@ cargo run -- list
 # [ ] 2. Review Level 2 outline
 ```
 
+## How It Actually Works
+
+`std::env::args()` gives you an iterator over the process's argv, already
+decoded from the OS into Rust `String`s — on Unix that means the kernel
+handed your process a raw array of C-string pointers at `exec`, and the Rust
+runtime's startup code (`std::rt`) converts each one into an owned,
+UTF-8-validated `String` before `main` ever runs, panicking early if a
+argument isn't valid UTF-8 rather than letting invalid bytes propagate
+silently. Every `Task` in your `Vec<Task>` lives in one contiguous heap
+allocation the vector owns; `tasks.iter_mut().find(...)` walks that buffer
+by reference rather than copying tasks out, so marking one done mutates it
+in place with no extra allocation.
+
+The `match command.as_str() { "add" => ..., "list" => ..., _ => ... }`
+dispatch is exhaustive by construction (the `_` arm makes it total over all
+possible `&str` values) and compiles to a sequence of string comparisons —
+there's no reflection-based command lookup table being built at runtime the
+way a dynamic-language CLI framework might use. Because `Task` derives
+`Debug`/similar traits at compile time (see Module 5), printing the list
+costs only the formatting work itself; nothing about the struct's shape is
+looked up dynamically. This is the same theme running through the whole
+level: what looks like convenient high-level code — iterators, enums,
+derives — is resolved and specialized entirely before the program starts
+running.
+
 ## Stretch goals
 
 - Add a `Priority` enum (`Low`/`Medium`/`High`) as a field on `Task` and sort

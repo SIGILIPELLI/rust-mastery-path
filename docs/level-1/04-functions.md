@@ -150,6 +150,32 @@ loops forever). That's a niche detail you won't need to write yourself yet,
 but it's why a function like `std::process::exit` can be used in places
 expecting any type: it never returns, so it's compatible with everything.
 
+## How It Actually Works
+
+Function calls in Rust use the platform's normal C-like calling convention
+under the hood (arguments in registers or on the stack, a return address
+pushed, a stack frame allocated) — there's no hidden runtime, virtual
+dispatch, or interpreter loop involved for a plain `fn`. `()`, the unit
+type, is genuinely zero-sized: it occupies no memory at all, so a function
+returning `()` costs nothing extra at the ABI level compared to one that
+returns "nothing" in a language without such a type. The `!` never type is
+special in the type checker rather than at runtime — it's defined as a
+subtype-like bottom type that coerces to *any* other type, which is exactly
+why `std::process::exit(1)` or a `panic!()` can appear in a branch of a
+`match` whose other arms return `i32`: the compiler unifies `!` with `i32`
+by treating the panicking branch as "this arm never actually produces a
+value to disagree with," not by inserting a runtime check.
+
+Monomorphization matters here too: every generic or trait-bound function you
+write gets a fully separate compiled copy per concrete type it's called
+with, rather than one shared implementation that dispatches at runtime. A
+`fn max_of_three<T: PartialOrd>(a: T, b: T, c: T) -> T` called with `i32` and
+with `f64` produces two distinct machine-code functions, each with the
+comparison inlined directly against the concrete type — no vtable lookup,
+no boxing. That's the mechanism behind "generics are zero-cost": the
+abstraction exists only in the source code you write, not in the binary
+that runs.
+
 ## Cheat sheet
 
 | Concept | Example | Notes |

@@ -205,6 +205,31 @@ lifetimes, and the full rule set get a dedicated deep dive in
 value has one owner, assignment moves non-`Copy` values, and `.clone()` gets
 you an explicit second copy when you need one.
 
+## How It Actually Works
+
+A `String` is really a struct of three machine words on the stack: a pointer
+to a heap buffer, a length, and a capacity. `let s2 = s1;` copies those three
+words (cheap, just like copying an `i32` triple) but then the compiler marks
+`s1` as **moved-out-of** in its static analysis — no runtime flag is set
+anywhere, no reference count changes, nothing happens to the heap data at
+all. The "move" is purely a compile-time bookkeeping fact tracked in the
+borrow checker's dataflow analysis; using `s1` afterward isn't a runtime
+error, it's a compile error, because the compiler can prove statically that
+the value's single owner is now `s2`. This is the mechanism that lets Rust
+call `drop` exactly once per value with zero runtime tracking: since only one
+binding can ever be "the owner" at a time, the compiler inserts the
+destructor call at the end of whichever scope currently owns the value, and
+there is provably no other live binding that could double-free it.
+
+`Copy` types sidestep this entirely because `Copy` is a marker trait telling
+the compiler "duplicating the bits is the complete, correct way to duplicate
+this value" — no heap pointer, no destructor to worry about running twice.
+A type can only implement `Copy` if it also implements `Clone` and contains
+no `Drop` fields, which is why `String` (owns a heap allocation, needs
+`Drop` to free it) can never be `Copy`: two copies of the same pointer would
+both try to free the same memory when they go out of scope, which is exactly
+the double-free bug ownership exists to make impossible.
+
 ## Cheat sheet
 
 | Type | Category | Example | Copy? |

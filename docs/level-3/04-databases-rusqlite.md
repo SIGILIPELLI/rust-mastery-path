@@ -134,6 +134,33 @@ frequent source of "wrong value in wrong column" bugs that the compiler
 cannot catch — SQLite only tells you at query-prepare time, and only if the
 name doesn't match at all.
 
+## How It Actually Works
+
+`Connection`'s lack of `Sync` isn't a rusqlite design choice, it's an FFI
+fact propagating up through the type system: `rusqlite::Connection` wraps a
+raw pointer to a `sqlite3*` C struct, and the SQLite C library documents
+that a single connection handle used without its own internal mutex is not
+safe for concurrent access from multiple threads. Because a raw pointer has
+no `Sync` impl by default, and Rust auto-derives `Send`/`Sync` structurally
+(as covered in Module 1's concurrency chapter), `Connection` correctly
+inherits "not safely shareable" from the FFI boundary — the compiler is
+faithfully reporting a real constraint of the C library underneath, not an
+arbitrary restriction. `Arc<Mutex<Connection>>` is the direct fix: `Arc`
+supplies safe shared ownership across threads and `Mutex` serializes actual
+access to the connection, satisfying SQLite's real requirement instead of
+working around a compiler opinion.
+
+The borrowed-row restriction is ordinary lifetime tracking, not a rusqlite
+quirk: `stmt.query_map` returns a `Rows`/`MappedRows` iterator that holds an
+internal reference into the still-live prepared statement's cursor state
+inside SQLite — the iterator's lifetime parameter is tied to `&stmt`, so the
+borrow checker treats returning it past `stmt`'s scope exactly like
+returning a reference to a local variable in Module 2's lifetime rules.
+`.collect::<Vec<Task>>()` converts each borrowed row into a fully owned
+`Task` while the statement is still alive, breaking the borrow and letting
+the resulting `Vec` (which owns its data outright) escape the function
+freely.
+
 ## Cheat sheet
 
 | Call | Purpose |
