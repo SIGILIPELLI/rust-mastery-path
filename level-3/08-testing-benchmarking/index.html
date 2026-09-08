@@ -1732,6 +1732,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2283,6 +2294,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2513,6 +2535,28 @@ compile once moved to an integration test, purely because it wasn't <code>pub</c
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>Criterion's statistical machinery exists because measuring wall-clock time
+on a modern CPU is noisy at the microsecond scale it benchmarks — branch
+predictors warm up, the OS scheduler preempts your thread, caches get
+evicted by unrelated processes. <code>black_box</code> addresses a different, purely
+compile-time problem: LLVM's optimizer is aggressive enough to
+constant-fold or entirely eliminate a computation whose result is never
+observably used (dead code elimination), which would make a benchmark
+"measure" a function call that got optimized away to nothing. <code>black_box</code>
+compiles to an inline-assembly-like barrier that tells LLVM "treat this
+value as opaque, assume it could be read or written arbitrarily" — it's a
+compiler-optimizer instruction, not a runtime operation, which is exactly
+why it moved into <code>std::hint</code> rather than staying a criterion-only helper.</p>
+<p>Integration tests under <code>tests/</code> compiling as a wholly separate crate is a
+direct consequence of Rust's module-privacy model from Module 9 (Level 1):
+each file in <code>tests/</code> is compiled and linked as its own independent binary
+that depends on your library crate the same way an external user's <code>Cargo.toml</code>
+would, so it only sees whatever is marked <code>pub</code> in your crate's public API —
+there is no special "test mode" visibility exception the way <code>#[cfg(test)]</code>
+unit tests get via <code>use super::*</code> from inside the crate itself. That's the
+mechanical reason the same private helper function compiles fine from a
+unit test but fails to resolve from an integration test.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Add a <code>#[test]</code> for <code>divide</code> that checks <code>divide(i32::MIN, -1)</code> — integer
 division overflow, since <code>i32::MIN / -1</code> doesn't fit in an <code>i32</code>. Run it

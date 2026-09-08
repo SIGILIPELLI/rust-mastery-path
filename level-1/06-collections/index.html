@@ -891,6 +891,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2228,6 +2239,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2430,6 +2452,29 @@ something to worry about yet.</p>
 mutable handle to this key's value, inserting a default first if it isn't
 there yet" — it's the classic tool for counting things, like tallying how
 many times each word appears in a block of text.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>Vec&lt;T&gt;</code> is three machine words: a pointer to a heap buffer, a length, and a
+capacity. Pushing past capacity triggers a reallocation — typically doubling
+capacity — which is why appending in a tight loop is usually amortized O(1)
+per push rather than O(n): most pushes just write into already-allocated
+space, and the occasional reallocation-and-copy is spread across all the
+pushes that led up to it. <code>Vec::with_capacity(n)</code> skips the repeated
+doubling entirely when you know the size up front. <code>HashMap</code>'s unordered
+iteration isn't an implementation quirk you're stuck with — it's a
+deliberate security property: Rust's default hasher (SipHash) is keyed with
+a random seed generated per-<code>HashMap</code> at runtime specifically to make hash
+flooding attacks (an adversary crafting keys that all collide into the same
+bucket) infeasible, and the random seed is also why insertion order can
+differ between runs of the identical program.</p>
+<p><code>.entry(key).or_insert(default)</code> avoids Rust's usual "look up, then look up
+again to mutate" tax: without it, checking <code>if map.contains_key(&amp;k)</code> and then
+calling <code>map.get_mut(&amp;k)</code> would each walk the hash table separately, and the
+borrow checker would actually reject holding a mutable reference from one
+call across the other. <code>entry()</code> instead does a single lookup and returns an
+<code>Entry</code> enum (<code>Occupied</code> or <code>Vacant</code>) representing that one bucket slot, so
+<code>or_insert</code> can act on it directly — one hash-table traversal instead of two,
+and no borrow conflict because there's only ever one live reference into the
+map at a time.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

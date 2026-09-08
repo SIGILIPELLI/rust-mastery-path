@@ -1171,6 +1171,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2316,6 +2327,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2541,6 +2563,31 @@ without owning them — it's how you borrow "part of" a <code>Vec</code> or <cod
 <code>fn print_length(s: &amp;String)</code> for function parameters: a <code>&amp;str</code> accepts a
 borrow of a <code>String</code>, a string literal, or a slice of either, while <code>&amp;String</code>
 only accepts the first.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>References carry zero runtime metadata beyond the address they point to — a
+<code>&amp;i32</code> is exactly one machine word, exactly like a raw pointer, and
+dereferencing it is a single load instruction with no bounds check, no
+reference count, no lock. All the safety comes from a <em>static</em> analysis
+called the <strong>borrow checker</strong>, which runs on MIR (mid-level IR, after your
+code is desugared and control-flow-graphed) and computes, for every
+reference, the region of program points over which it's "alive" — its
+lifetime. The rule the borrow checker enforces is: at any single program
+point, either one <code>&amp;mut</code> reference exists, or any number of <code>&amp;</code> references
+exist, never both — and it proves this by tracking, for each borrow, exactly
+where that borrow's lifetime region ends (its last use, under NLL —
+non-lexical lifetimes — not necessarily the end of the enclosing scope).
+None of this analysis leaves any trace in the compiled binary; by the time
+LLVM sees the code, all that's left is plain loads and stores.</p>
+<p>Field-level "split borrows" (<code>&amp;mut p.x</code> and <code>&amp;mut p.y</code> simultaneously) work
+because the borrow checker can see the concrete field projections at compile
+time and prove the two memory regions are disjoint — but a method call
+<code>p.some_method()</code> is opaque to that analysis (the compiler doesn't inline
+and re-derive field access through arbitrary function calls before borrow
+checking), so it must conservatively borrow the entire struct. Slices
+(<code>&amp;[T]</code>, <code>&amp;str</code>) are two words — pointer plus length — computed once at
+slicing time; indexing then still bounds-checks against that stored length
+at each access, which is the one small runtime cost slices do pay in
+exchange for memory safety without a garbage collector.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

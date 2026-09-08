@@ -1570,6 +1570,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2250,6 +2261,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2410,6 +2432,29 @@ people testing by hand.</p>
 a string via <code>FromStr</code> — works for numbers and <code>String</code> out of the box, but
 a custom enum needs <code>#[derive(ValueEnum)]</code> or its own <code>FromStr</code> impl before
 it can be a typed argument with a default.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>#[derive(Parser)]</code> is a procedural macro that runs at compile time,
+inspects your struct's field names, types, and attributes as a syntax tree,
+and generates a whole hand-written-looking <code>clap::Parser</code> implementation —
+argument definitions, a help-text renderer, and a <code>parse()</code> method that
+builds your struct field by field. None of this is reflection: by the time
+your binary runs, there's no metadata table clap consults to know your
+struct's shape, because the parsing code was already fully generated and
+type-checked against your exact struct at compile time, and the compiler
+would reject a mismatch (say, a required <code>String</code> field with no CLI value)
+as a normal type error inside the generated code, not a runtime surprise.</p>
+<p>The <code>String</code> vs <code>&amp;str</code> trap traces straight back to ownership: clap builds
+your typed struct from <code>std::env::args()</code>, which (per Module 10's project)
+already handed you owned <code>String</code>s decoded from argv — there is no
+longer-lived buffer for a <code>&amp;str</code> field to legally borrow from once the
+parsing function returns, so the borrow checker rejects <code>&amp;'a str</code> fields
+exactly the way it would reject returning a reference to a local variable.
+Exit code 2 on a validation failure isn't magic either: it's clap's
+generated <code>try_parse()</code> returning <code>Err</code>, with your generated <code>main</code> (or the
+derive's own <code>main</code>-wrapping logic) printing the error to stderr and calling
+<code>std::process::exit(2)</code> before your actual program logic ever begins — the
+same <code>Result</code>-and-early-return pattern from Module 5, just wired up for you
+by the macro.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

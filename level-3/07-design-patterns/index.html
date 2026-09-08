@@ -1704,6 +1704,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2283,6 +2294,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2523,6 +2545,31 @@ manually implementing <code>std::ops::Add</code>/<code>Mul</code> per operation 
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>The typestate pattern (<code>Post&lt;Draft&gt;</code>, <code>Post&lt;Published&gt;</code>) enforces its rule
+entirely at compile time and vanishes completely by runtime: <code>PhantomData&lt;State&gt;</code>
+is a zero-sized type, so <code>Post&lt;Draft&gt;</code> and <code>Post&lt;Published&gt;</code> are laid out
+identically in memory — same fields, same size, same bytes — and
+monomorphization (Module 3) generates entirely separate <code>impl</code> blocks per
+<code>State</code>, so <code>fn publish(self) -&gt; Post&lt;Published&gt;</code> only even exists as a
+method on <code>Post&lt;Draft&gt;</code>. There is no runtime state field to check and no
+possible "wrong state" branch to forget to handle — the compiler simply
+never generates code that calls <code>.publish()</code> on an already-published post,
+because that method doesn't exist for that type. This is the strongest form
+of "make invalid states unrepresentable": not a runtime check that could be
+skipped, but an absence of the method from the type's very API.</p>
+<p>The <code>dyn Trait</code>-object-safety trap is a direct consequence of how trait
+objects are represented (Module 3's vtable explanation): a vtable stores
+function pointers whose signatures must be uniform and knowable without
+knowing the concrete <code>Self</code> type, so a method taking or returning <code>Self</code> by
+value can't have a vtable entry — the vtable can't know at compile time how
+large a same-type return value would be for whichever concrete type ends up
+behind the trait object. Builder methods consuming <code>self</code> by value rather
+than <code>&amp;mut self</code> matters for the same ownership reason as the newtype
+pattern's move semantics from Module 1: passing <code>self</code> moves the whole
+builder value into the method, letting it destructure and reconstruct
+fields without cloning, whereas <code>&amp;mut self</code> only ever gives you a borrow you
+can mutate in place, not one you can move fields out of.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Extend the typestate example with a third state, <code>Archived</code>, reachable only
 from <code>Post&lt;Published&gt;</code> via an <code>archive(self) -&gt; Post&lt;Archived&gt;</code> method.

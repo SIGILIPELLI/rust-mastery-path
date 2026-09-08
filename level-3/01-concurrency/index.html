@@ -1547,6 +1547,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2316,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2589,6 +2611,31 @@ so no thread ever needs to hold two locks at once.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>The compiler catches shared-mutation-across-threads at compile time through
+two marker traits, <code>Send</code> (safe to transfer ownership to another thread) and
+<code>Sync</code> (safe to share <code>&amp;T</code> across threads), which are auto-derived
+structurally: a type is <code>Send</code>/<code>Sync</code> automatically if every field it
+contains is. <code>Rc&lt;T&gt;</code>'s reference count is a plain, non-atomic integer (as
+covered in Module 7), so <code>Rc&lt;T&gt;</code> is deliberately <em>not</em> <code>Sync</code>, and the
+compiler rejects moving one into <code>thread::spawn</code>'s closure as a type error
+long before any race could happen. <code>Arc&lt;T&gt;</code> is structurally almost identical
+but uses <code>AtomicUsize</code> for its count — atomic increment/decrement compiled
+to a hardware-level atomic instruction (<code>lock xadd</code> on x86) that's safe under
+concurrent access — which is what actually earns it the <code>Sync</code> marker.</p>
+<p><code>Mutex&lt;T&gt;::lock()</code> returns a <code>MutexGuard&lt;T&gt;</code>, and this is where Rust's
+ownership model does something no other mainstream mutex API does: the
+guard is the <em>only</em> way to access the protected data (there's no separate
+<code>.unlock()</code> call, and no way to touch the inner value without going through
+the guard), and the lock is released automatically via the guard's <code>Drop</code>
+impl when it goes out of scope. This means the compiler enforces "you cannot
+touch this data without holding the lock" and "you cannot forget to unlock"
+as ownership rules, not as documentation you have to trust — a whole class
+of use-after-unlock and forgot-to-unlock bugs simply can't compile. Deadlocks
+survive this scheme because they're a <em>logical</em> ordering problem between two
+otherwise-correctly-guarded locks, not a memory-safety violation — which is
+exactly the boundary of what the borrow checker's static analysis is built
+to catch: it proves memory safety, not liveness.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Write a program that spawns 5 threads, each simulating a "download" by
 sleeping a duration (use <code>thread::sleep</code> with each thread's index times

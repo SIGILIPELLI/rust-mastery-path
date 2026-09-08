@@ -784,6 +784,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2283,6 +2294,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2468,6 +2490,27 @@ matches what the compiler itself would say. Install VS Code, then install
 "rust-analyzer" from the Extensions panel, and it will auto-detect any Cargo
 project you open. (RustRover from JetBrains is a solid paid alternative if
 you prefer a full IDE.)</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>rustc</code> is a single, ahead-of-time compiler pipeline — no separate linker
+step you have to think about, no JIT, no VM to ship alongside the binary.
+Source goes through several intermediate representations before machine code:
+Rust source → <strong>AST</strong> → <strong>HIR</strong> (High-level IR, roughly desugared Rust) →
+<strong>MIR</strong> (Mid-level IR, where borrow-checking actually happens) → <strong>LLVM IR</strong> →
+native machine code via LLVM's backend. This is why <code>cargo build</code> feels slow
+compared to an interpreted language starting up: the compiler is doing full
+type inference, trait resolution, borrow checking, and LLVM optimization
+passes before you get an executable, and why the payoff is a binary with no
+runtime interpreter overhead at all.</p>
+<p><code>cargo build</code> and <code>cargo run</code> skip recompilation of unchanged code by
+checking file hashes and dependency graphs recorded in <code>target/debug/.fingerprint/</code>
+and <code>Cargo.lock</code> — this incremental compilation cache is why the <em>second</em>
+<code>cargo run</code> after a one-line edit is dramatically faster than the first.
+<code>--release</code> re-runs LLVM with optimization level 3 and strips debug
+assertions (like integer-overflow panics), trading longer compile times for
+a binary that can be 10-30x faster at runtime — the difference matters
+because Rust's whole value proposition is compiling abstractions down to
+code as tight as hand-written C, and <code>--release</code> is the only build mode
+where that promise actually gets cashed in.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Use <code>cargo new greeter</code> to scaffold a new project. Edit <code>src/main.rs</code> so
 <code>main</code> prints a greeting for three different names, one <code>println!</code> call per

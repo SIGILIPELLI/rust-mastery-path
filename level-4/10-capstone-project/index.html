@@ -2162,6 +2162,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stretch-goals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2274,6 +2285,17 @@
     <span class="md-ellipsis">
       
         Design decisions worth naming explicitly
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
       
     </span>
   </a>
@@ -2508,6 +2530,28 @@ too) would make the metric measure "how often someone checked" instead of
 handler serializes on the same lock; fine at this scale, and the same
 <code>r2d2_sqlite</code>-pool stretch goal from Level 3 applies here too if throughput
 ever mattered.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>This capstone is a synthesis point for the whole path's ownership story, and
+it's worth naming precisely which mechanisms are load-bearing where.
+Deriving codes from row ids rather than generating them randomly with a
+collision-retry loop sidesteps a genuinely hard concurrency problem: a
+retry loop needs to check-then-insert, and under concurrent requests hitting
+the same shared <code>Mutex&lt;Connection&gt;</code> (this project's single-connection
+tradeoff, same as Level 3's), a naive check-then-insert without the whole
+sequence being atomic under one lock acquisition would be a real
+time-of-check-to-time-of-use race — the id-derived scheme avoids needing
+that atomicity at all, since SQLite itself guarantees each inserted row gets
+a unique, monotonically increasing id as part of the insert.</p>
+<p>The hit counter incrementing specifically inside <code>resolve</code> (not <code>stats</code>)
+works because it's a plain <code>UPDATE ... SET hits = hits + 1</code> executed while
+holding the same <code>Mutex&lt;Connection&gt;</code> every other handler acquires — there's
+no separate atomic counter or cache to keep in sync with the database the
+way an <code>AtomicU64</code> (Level 4, module 04) would need to be; the lock guarantees
+each increment sees the true current row value with no other handler's
+write interleaved. This is the one-shared-connection design's actual
+guarantee: correctness by full serialization, at the throughput cost the
+"design decisions" section already names and the <code>r2d2_sqlite</code> pooling
+stretch goal exists to relax.</p>
 <h2 id="stretch-goals">Stretch goals<a class="headerlink" href="#stretch-goals" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Add a <code>DELETE /links/{code}</code> endpoint and confirm a deleted code correctly

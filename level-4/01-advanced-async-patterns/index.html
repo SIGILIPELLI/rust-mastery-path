@@ -1912,6 +1912,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2283,6 +2294,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2466,6 +2488,31 @@ until it finished or the whole runtime shut down.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>tokio::spawn</code> handing back a detached task connects to the <code>Future</code>
+state-machine model from Level 3: spawning puts the generated state-machine
+struct onto the runtime's task queue as an independent, heap-allocated unit
+the executor owns and polls on its own schedule — it is no longer tied to
+the stack frame that called <code>spawn</code>, which is exactly why it keeps running
+after that function returns. <code>handle.abort()</code> doesn't forcibly kill a thread
+or interrupt execution mid-instruction; it sets a cancellation flag the
+runtime checks at the task's next poll, at which point the runtime drops
+the future instead of resuming it — cancellation is cooperative and only
+takes effect at an actual <code>.await</code> (poll) boundary, never inside a long
+synchronous stretch of code between awaits.</p>
+<p>The borrowing restriction inside <code>select!</code> is the borrow checker doing
+exactly what it does everywhere else, just applied to macro-generated code:
+<code>select!</code> expands into a structure that polls each branch's future in turn
+and, once one is ready, drops all the others — since any branch could be the
+one that gets dropped, the compiler must prove that no branch's borrow
+depends on state another (possibly-dropped) branch owns, the same aliasing
+rule from Level 2's ownership chapter, just harder to read because the
+error points at the expanded macro rather than your source lines directly.
+<code>try_join!</code> short-circuiting on the first <code>Err</code> while <code>join!</code> always waits
+for everything is a design choice baked into each macro's generated <code>poll</code>
+logic, not a difference in the underlying futures themselves — both drive
+the same set of independent state machines, they just differ in when they
+decide to stop polling and return.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Write an async function <code>fetch_with_retry(id: u32, delay_ms: u64, attempts:
 u32)</code> that calls <code>fetch</code>, wraps each attempt in a 100ms <code>timeout</code>, and on

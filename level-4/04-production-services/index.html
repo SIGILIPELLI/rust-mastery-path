@@ -2018,6 +2018,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2327,6 +2338,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2521,6 +2543,32 @@ eviction, not <code>SIGINT</code>) — <code>signal::ctrl_c()</code> alone only 
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>AtomicU64</code>/<code>AtomicBool</code> compile to real hardware atomic instructions
+(<code>lock cmpxchg</code>, <code>lock add</code> on x86) rather than a lock-based emulation —
+they're atomic because the CPU itself guarantees the read-modify-write
+happens indivisibly, with no <code>Mutex</code> or OS involvement at all, which is why
+they're dramatically cheaper for a single counter than wrapping a plain
+<code>u64</code> in a <code>Mutex</code>. <code>Ordering</code> is a separate concern from atomicity: it
+controls how the <em>compiler and CPU</em> are allowed to reorder surrounding
+non-atomic memory operations relative to the atomic one. <code>Relaxed</code> only
+guarantees the operation itself is atomic, with no ordering guarantee about
+anything else in memory around it — fine for an independent counter nobody
+else's visibility depends on. <code>Release</code>/<code>Acquire</code> form a pairing: a
+<code>Release</code> store guarantees every ordinary write that happened <em>before</em> it in
+program order becomes visible to any thread that later does an <code>Acquire</code>
+load of that same atomic and sees the new value — that's the actual
+mechanism that makes "the cache was populated before the flag flipped"
+provably true across threads, not just true by coincidence of timing.</p>
+<p>Graceful shutdown works by threading a future through
+<code>with_graceful_shutdown</code> that the server polls alongside every accepted
+connection: when that future resolves (because your <code>SIGTERM</code>/<code>ctrl_c</code>
+handler completed), the server stops calling <code>accept()</code> on its listening
+socket but leaves already-spawned per-connection tasks running until each
+one's future naturally completes — this is ordinary async task management
+from Level 3, not special shutdown magic, just a <code>select!</code>-shaped race
+between "keep accepting" and "shutdown signal fired" wired into axum's
+serve loop.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Add a <code>SIGTERM</code> handler alongside the existing <code>ctrl_c</code> branch in
 <code>shutdown_signal</code>, using <code>tokio::select!</code> to race both, so the service

@@ -1626,6 +1626,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2250,6 +2261,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2426,6 +2448,29 @@ and axum clones it for every handler invocation. That's cheap here — it's
 only cloning an <code>Arc</code> pointer, not the <code>Vec&lt;Task&gt;</code> behind it — but it's easy
 to accidentally wrap the wrong field in a way that makes each clone deep.
 Keep anything expensive behind <code>Arc</code>.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>The <code>MutexGuard</code>-across-<code>.await</code> error connects two mechanisms from earlier
+levels directly. Recall from Module 2 that <code>async fn</code> desugars into a state
+machine struct holding every local variable still alive across an <code>.await</code>
+point as a field of that struct; if a <code>MutexGuard</code> is one of those locals,
+it becomes a field of the generated <code>Future</code>. Tokio's multithreaded runtime
+can move a suspended task (and thus its whole state-machine struct) to a
+different worker thread between polls, which means that <code>MutexGuard</code> field
+would need to be <code>Send</code>. <code>std::sync::MutexGuard</code> isn't <code>Send</code> by design
+(some platforms' mutex implementations require the same OS thread to
+unlock what it locked) — so holding one across an await point makes the
+<em>entire</em> generated future non-<code>Send</code>, and the error surfaces wherever axum's
+router requires handler futures to be <code>Send</code>, which is unrelated code far
+from your <code>lock()</code> call. <code>tokio::sync::Mutex</code> fixes this because its guard
+has no such thread-affinity requirement — trading a small amount of async
+scheduling overhead for a <code>Send</code> guard.</p>
+<p>Cloning <code>AppState</code> per request being cheap is the <code>Rc</code>/<code>Arc</code> mechanism from
+Module 7 again: <code>#[derive(Clone)]</code> on a struct whose field is <code>Arc&lt;Mutex&lt;
+Vec&lt;Task&gt;&gt;&gt;</code> generates a clone that copies the outer struct's few machine
+words and bumps the <code>Arc</code>'s atomic reference count — it never touches the
+<code>Vec&lt;Task&gt;</code> data itself, which is why axum can clone state on every single
+incoming request without that cost scaling with how much data the state
+actually holds.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

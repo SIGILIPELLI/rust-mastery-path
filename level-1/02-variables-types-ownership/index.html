@@ -845,6 +845,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2360,6 +2371,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2561,6 +2583,28 @@ lifetimes, and the full rule set get a dedicated deep dive in
 <a href="../../level-2/01-ownership-borrowing/">Level 2</a>. For now, remember: each
 value has one owner, assignment moves non-<code>Copy</code> values, and <code>.clone()</code> gets
 you an explicit second copy when you need one.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>A <code>String</code> is really a struct of three machine words on the stack: a pointer
+to a heap buffer, a length, and a capacity. <code>let s2 = s1;</code> copies those three
+words (cheap, just like copying an <code>i32</code> triple) but then the compiler marks
+<code>s1</code> as <strong>moved-out-of</strong> in its static analysis — no runtime flag is set
+anywhere, no reference count changes, nothing happens to the heap data at
+all. The "move" is purely a compile-time bookkeeping fact tracked in the
+borrow checker's dataflow analysis; using <code>s1</code> afterward isn't a runtime
+error, it's a compile error, because the compiler can prove statically that
+the value's single owner is now <code>s2</code>. This is the mechanism that lets Rust
+call <code>drop</code> exactly once per value with zero runtime tracking: since only one
+binding can ever be "the owner" at a time, the compiler inserts the
+destructor call at the end of whichever scope currently owns the value, and
+there is provably no other live binding that could double-free it.</p>
+<p><code>Copy</code> types sidestep this entirely because <code>Copy</code> is a marker trait telling
+the compiler "duplicating the bits is the complete, correct way to duplicate
+this value" — no heap pointer, no destructor to worry about running twice.
+A type can only implement <code>Copy</code> if it also implements <code>Clone</code> and contains
+no <code>Drop</code> fields, which is why <code>String</code> (owns a heap allocation, needs
+<code>Drop</code> to free it) can never be <code>Copy</code>: two copies of the same pointer would
+both try to free the same memory when they go out of scope, which is exactly
+the double-free bug ownership exists to make impossible.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

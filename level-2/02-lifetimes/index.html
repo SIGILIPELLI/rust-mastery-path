@@ -1199,6 +1199,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2316,6 +2327,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2502,6 +2524,31 @@ It's the right answer only when the data genuinely lives forever (string
 literals, values leaked intentionally, or globals); using it to paper over a
 lifetime error usually just moves the error somewhere else, or forces you to
 <code>.clone()</code> data that didn't need cloning.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>Lifetime parameters like <code>'a</code> are not runtime values, types, or anything
+that exists after compilation — they're purely a notation you use to tell
+the borrow checker facts it can't infer on its own about <em>relationships</em>
+between input and output reference lifetimes. <code>fn longest&lt;'a&gt;(x: &amp;'a str, y:
+&amp;'a str) -&gt; &amp;'a str</code> doesn't mean "x and y must literally live the same
+length of time" — it means "the returned reference's lifetime is the
+intersection (the shorter) of whatever <code>'a</code> gets instantiated to for this
+call," and the caller's borrow checker then uses that contract to verify the
+returned reference isn't used past when either input becomes invalid. This
+is exactly the same MIR-level dataflow analysis from Module 1's borrowing
+discussion, just needing an explicit annotation when the relationship spans
+a function boundary the compiler can't see through automatically — inside a
+single function body, lifetimes are always inferred, never written.</p>
+<p><code>'static</code> is the special case where that region is "the whole program" —
+literally true for string literals because the compiler embeds their bytes
+directly into the binary's read-only data section (<code>.rodata</code>), giving them
+an address that's valid for the process's entire lifetime with no
+allocation or deallocation ever happening. Slapping <code>'static</code> on a reference
+that doesn't actually point at program-lifetime data doesn't create that
+guarantee — it just asserts something false to the compiler, which is why
+the fix that "worked" is usually the borrow checker forcing you toward
+<code>'static</code> by making you <code>.clone()</code> the data into an owned value instead
+(trading a borrow for real ownership) rather than the annotation itself
+solving anything.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

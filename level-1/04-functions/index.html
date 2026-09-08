@@ -868,6 +868,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2294,6 +2305,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2456,6 +2478,29 @@ function that never returns at all (for example, one that always panics or
 loops forever). That's a niche detail you won't need to write yourself yet,
 but it's why a function like <code>std::process::exit</code> can be used in places
 expecting any type: it never returns, so it's compatible with everything.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>Function calls in Rust use the platform's normal C-like calling convention
+under the hood (arguments in registers or on the stack, a return address
+pushed, a stack frame allocated) — there's no hidden runtime, virtual
+dispatch, or interpreter loop involved for a plain <code>fn</code>. <code>()</code>, the unit
+type, is genuinely zero-sized: it occupies no memory at all, so a function
+returning <code>()</code> costs nothing extra at the ABI level compared to one that
+returns "nothing" in a language without such a type. The <code>!</code> never type is
+special in the type checker rather than at runtime — it's defined as a
+subtype-like bottom type that coerces to <em>any</em> other type, which is exactly
+why <code>std::process::exit(1)</code> or a <code>panic!()</code> can appear in a branch of a
+<code>match</code> whose other arms return <code>i32</code>: the compiler unifies <code>!</code> with <code>i32</code>
+by treating the panicking branch as "this arm never actually produces a
+value to disagree with," not by inserting a runtime check.</p>
+<p>Monomorphization matters here too: every generic or trait-bound function you
+write gets a fully separate compiled copy per concrete type it's called
+with, rather than one shared implementation that dispatches at runtime. A
+<code>fn max_of_three&lt;T: PartialOrd&gt;(a: T, b: T, c: T) -&gt; T</code> called with <code>i32</code> and
+with <code>f64</code> produces two distinct machine-code functions, each with the
+comparison inlined directly against the concrete type — no vtable lookup,
+no boxing. That's the mechanism behind "generics are zero-cost": the
+abstraction exists only in the source code you write, not in the binary
+that runs.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

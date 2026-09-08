@@ -1434,6 +1434,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stretch-goals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2327,6 +2338,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stretch-goals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2723,6 +2745,26 @@ calls:</p>
 <a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
 <a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 </code></pre></div>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>print_report&lt;S: WeatherSource&gt;</code> being generic over the trait rather than
+taking a concrete <code>OpenMeteoClient</code> is monomorphization put to real use: the
+compiler generates one specialized copy of <code>print_report</code> for
+<code>OpenMeteoClient</code> in production and a separate specialized copy for
+<code>FakeSource</code> in tests, each with its <code>fetch</code> call inlined directly against
+that concrete type — the "swap in a fake for testing" pattern costs nothing
+at runtime because there's no dynamic dispatch involved at all, unlike the
+<code>dyn Trait</code> approach from Module 3 which would add a vtable indirection at
+every call. This is why the codebase can test <code>stats.rs</code>'s pure numeric
+logic with zero network calls: the generic boundary is a compile-time
+seam, not a runtime one, so substituting <code>FakeSource</code> doesn't touch the
+network client's code path at all.</p>
+<p>The unknown-city case reaching a clean <code>Error: could not find a city...</code>
+instead of a panic is the <code>?</code>-and-<code>From</code> machinery from Module 5 doing real
+work end to end: the HTTP client's error, the JSON-parsing error, and a
+custom "not found" error all get unified into one <code>AppError</code> type via <code>From</code>
+impls, so a single <code>?</code> at each fallible step propagates whichever failure
+occurred up to <code>main</code>, which prints it and exits non-zero — the same
+mechanism, scaled up from a toy example to an actual network-calling CLI.</p>
 <h2 id="stretch-goals">Stretch goals<a class="headerlink" href="#stretch-goals" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Add a <code>FakeSource</code> implementing <code>WeatherSource</code> that returns a hand-built

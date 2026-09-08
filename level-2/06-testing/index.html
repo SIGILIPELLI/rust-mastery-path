@@ -1311,6 +1311,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2316,6 +2327,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2540,6 +2562,27 @@ force sequential execution.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>cargo<span class="w"> </span><span class="nb">test</span><span class="w">              </span><span class="c1"># skips ignored tests</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>cargo<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--<span class="w"> </span>--ignored<span class="w"> </span><span class="c1"># runs ONLY the ignored tests</span>
 </code></pre></div>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>#[test]</code> is a procedural attribute macro: at compile time, <code>cargo test</code>
+compiles your crate in a special mode where every <code>#[test]</code>-annotated
+function is registered into a generated <code>main</code> for a separate <strong>test
+harness binary</strong> — the harness itself is what spawns a thread per test,
+catches panics via <code>catch_unwind</code> to determine pass/fail, and collects
+results, rather than any special runtime feature of Rust itself. A test
+"failing" is really just: the test function panicked, the harness caught
+that unwind at the thread boundary, and reported it as a failure instead of
+letting it crash the whole test binary — the same stack-unwinding mechanism
+from Module 5's panic discussion, repurposed as the pass/fail signal.</p>
+<p>Running tests on separate threads by default is why shared mutable state
+(a shared temp file, a global counter, an env var) causes flaky tests: two
+test threads racing on the same file descriptor have no ordering guarantee,
+and Rust's compile-time data-race prevention only protects memory <em>within</em>
+one process's type system — it has no way to know two independent test
+functions are implicitly sharing an external resource like a file path or
+port number. <code>cargo test -- --test-threads=1</code> forces sequential execution
+by telling the harness binary (via its own CLI parsing after the <code>--</code>) to
+use a single worker thread, trading speed for determinism when tests can't
+be made independent.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

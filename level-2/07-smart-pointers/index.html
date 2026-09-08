@@ -1339,6 +1339,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2316,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2546,6 +2568,31 @@ possible under the compile-time borrow rules.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>Rc&lt;T&gt;</code> allocates its <code>T</code> on the heap alongside two extra counters — a
+strong count and a weak count — in a single block; <code>Rc::clone</code> doesn't copy
+the data, it just increments the strong count and returns a new pointer to
+the same allocation, and <code>Drop</code> decrements it, freeing the block only when
+the strong count hits zero. Critically, that increment/decrement is a plain
+non-atomic integer operation, which is precisely why <code>Rc&lt;T&gt;</code> is not
+<code>Send</code>/<code>Sync</code> and can't cross thread boundaries — two threads racing on that
+counter would be a data race. <code>Arc&lt;T&gt;</code> (Level 3) is the same idea with
+atomic increments/decrements, at the cost of atomic-instruction overhead
+even on a single thread, which is why the standard library gives you both
+rather than one type paying for thread-safety nobody asked for.</p>
+<p><code>RefCell&lt;T&gt;</code> implements what's called <strong>interior mutability</strong>: it holds the
+<code>T</code> plus a hidden <code>Cell&lt;isize&gt;</code>-like borrow-tracking flag, and <code>.borrow()</code>
+/<code>.borrow_mut()</code> check and update that flag at runtime instead of the
+borrow checker verifying aliasing rules at compile time — <code>.borrow_mut()</code>
+while any <code>.borrow()</code> is still live increments into an invalid state and
+triggers <code>panic!("already borrowed")</code>. This is the runtime equivalent of the
+compile-time check from Module 1: same rule (one writer XOR many readers),
+enforced at a different phase, because the compiler's static analysis can't
+follow aliasing through shared pointers like <code>Rc</code>. <code>Rc&lt;RefCell&lt;T&gt;&gt;</code>
+combining both is why it's sometimes called "the both-a-little-slower
+version of <code>&amp;mut</code>" — you're deliberately trading the zero-cost compile-time
+guarantee for the flexibility of shared, runtime-checked mutation graphs
+that the ownership model alone can't express.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Model a simple shared shopping cart: define
 <code>struct Cart { items: Vec&lt;String&gt;, total: f64 }</code>. Wrap it in

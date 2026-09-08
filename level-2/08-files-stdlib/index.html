@@ -1356,6 +1356,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2294,6 +2305,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2510,6 +2532,29 @@ Windows, so <code>.push()</code>/<code>.join()</code> is the portable habit to b
 string it fills, so comparing or printing without trimming leaves a stray
 <code>\n</code> that's easy to miss until it causes a confusing bug (like a name that
 "looks right" but fails an equality check).</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>std::io</code> types like <code>Stdin</code>/<code>Stdout</code> are thin, buffered wrappers around
+raw OS file descriptors (fd 0/1 on Unix, handles on Windows) — <code>read_line</code>
+issues a <code>read</code> syscall into an internal buffer and copies decoded UTF-8
+bytes into your <code>String</code>, growing its heap allocation as needed the same
+way <code>Vec::push</code> does. <code>print!</code> writes into a line-buffered (when attached to
+a terminal) or block-buffered (when piped) internal buffer rather than
+issuing a syscall per call, which is exactly why it needs an explicit
+<code>.flush()</code>: without it, "Enter your name: " can sit in the buffer,
+unflushed, while your program blocks waiting for <code>stdin</code> input the user
+never sees a prompt for. <code>println!</code> appends <code>\n</code>, and on most buffering
+modes a newline is what triggers an automatic flush — that's the actual
+reason <code>println!</code> "just works" while <code>print!</code> needs help.</p>
+<p><code>Path</code>/<code>PathBuf</code> solve a problem that's genuinely about the target platform,
+not just style: on Windows, path separators, drive letters, and UNC
+prefixes have different rules than POSIX paths, so <code>Path</code> is built as a thin
+wrapper over an <code>OsStr</code> (a string type that can hold platform-native,
+possibly-non-UTF-8 data like arbitrary Windows filenames) rather than a
+plain <code>String</code>. <code>.join()</code> and <code>.push()</code> inspect the platform's separator
+convention at compile time (via <code>cfg</code> conditionals compiled into the std
+library for your target) and insert the right one — the portability isn't
+runtime detection, it's a different <code>std</code> build per target that Cargo
+already selected when it compiled your dependencies for your platform.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

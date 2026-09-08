@@ -941,6 +941,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2272,6 +2283,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2447,6 +2469,27 @@ real Rust code, and you'll see much more of it in Level 2.</p>
 with a compatible error type — the compiler enforces this, so if you forget,
 you'll get a clear error telling you the function's return type doesn't
 match.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>Result&lt;T, E&gt;</code> and <code>Option&lt;T&gt;</code> are ordinary enums — no exception machinery,
+stack unwinding tables, or hidden control-flow paths in the compiled code
+the way <code>try</code>/<code>catch</code> needs. <code>?</code> is pure syntax sugar the compiler expands at
+compile time: <code>input.parse::&lt;i32&gt;()?</code> desugars to roughly <code>match
+input.parse::&lt;i32&gt;() { Ok(v) =&gt; v, Err(e) =&gt; return Err(From::from(e)) }</code>.
+That <code>From::from(e)</code> conversion is why <code>?</code> can propagate an error of one
+concrete type into a function returning a different (often broader) error
+type — the compiler inserts an implicit trait-based conversion at the
+propagation point, as long as the target error type implements <code>From</code> for
+the source error. Because this all resolves to a plain early <code>return</code>
+compiled into the function's normal control flow, there is zero runtime
+overhead beyond a branch — no exception object gets allocated, no stack gets
+unwound frame-by-frame looking for a handler.</p>
+<p>This is also why <code>?</code> needs a matching return type: the compiler must know at
+compile time which <code>Err</code> variant to construct and return, so it type-checks
+the conversion the same way it would type-check any other expression. Since
+errors are just values flowing through ordinary return statements, a <code>Result</code>
+you ignore is data you dropped, not an exception silently swallowed — the
+<code>#[must_use]</code> attribute on <code>Result</code> is what makes the compiler warn you when
+you discard one without handling it.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

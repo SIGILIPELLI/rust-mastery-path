@@ -1553,6 +1553,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2272,6 +2283,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2493,6 +2515,33 @@ cleanup so it survives being dropped mid-await — typically via a type whose
 be async. Reaching for <code>tokio::spawn</code> plus <code>JoinHandle::abort()</code> when you
 need cancellation <em>with</em> an explicit signal, instead of implicit
 drop-on-select, is often clearer than relying on this behavior by accident.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>An <code>async fn</code> is not a thread and doesn't run anything by itself — calling
+it just constructs a value: the compiler desugars the function body into an
+anonymous <strong>state machine</strong> implementing the <code>Future</code> trait, whose single
+required method is <code>fn poll(self: Pin&lt;&amp;mut Self&gt;, cx: &amp;mut Context) -&gt;
+Poll&lt;Self::Output&gt;</code>. Every <code>.await</code> point becomes a state in that machine —
+the local variables that are still "alive" across an await get stored as
+fields of the generated struct so they survive being paused. Calling <code>poll</code>
+resumes execution from wherever it last returned <code>Poll::Pending</code>; nothing
+runs until an executor (like Tokio's runtime) actually calls <code>poll</code>
+repeatedly, which is why an <code>async fn</code> call with no <code>.await</code>ing runtime
+attached does literally nothing.</p>
+<p>This state machine is exactly why cancellation looks the way it does above:
+"dropping a future" is nothing more exotic than dropping that generated
+struct, and Rust's <code>Drop</code> runs on any value going out of scope regardless of
+what kind of value it is — a <code>Future</code>'s state machine gets no special
+treatment. Whatever local state was captured in the current state's fields
+gets dropped in place, but any code <em>after</em> the paused <code>.await</code> point that
+hasn't executed yet simply never becomes part of any live state to run —
+it's not skipped by a control-flow decision, it's just unreachable code in
+a state machine that stopped advancing. <code>Pin</code> exists because these
+generated structs are often <strong>self-referential</strong> (a reference into one
+field pointing at another field of the same struct, to represent borrows
+that live across an await point) — moving such a struct in memory would
+invalidate that internal pointer, so <code>Pin</code> is the compiler's way of
+guaranteeing the struct's address is fixed for as long as those internal
+references need it to be.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

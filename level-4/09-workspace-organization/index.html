@@ -2158,6 +2158,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2320,6 +2331,17 @@
     <span class="md-ellipsis">
       
         Cheat sheet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
       
     </span>
   </a>
@@ -2547,6 +2569,32 @@ test suites too because they're all one <code>cargo test</code> invocation.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>A workspace's single <code>Cargo.lock</code> reflects that Cargo treats all member
+crates as one unified dependency-resolution problem, not several
+independent ones sharing a directory: when computing what version of
+<code>serde</code> to use, Cargo walks the combined dependency graph of every member
+crate at once and picks one set of versions satisfying every member's
+constraints simultaneously, then compiles each shared dependency exactly
+once as a single <code>.rlib</code> artifact all requesting crates link against. This
+is also why <code>resolver = "2"</code> matters: the older (version-1) resolver unifies
+feature flags across a crate's normal, dev, and build dependency roles as if
+they were one dependency, so a feature enabled only for <code>cargo test</code>'s
+dev-dependencies could leak into what gets compiled for the release binary
+too — resolver 2 tracks those roles separately during resolution, which is
+a real behavioral difference in what code ends up linked into a release
+build, not just a metadata change.</p>
+<p>Path dependencies compiling against on-disk source with no version-bump
+requirement is the flip side of the crates.io publishing model: a
+crates.io dependency is fetched and locked to an immutable, versioned
+snapshot of source published at some point in the past, so bumping a
+version is literally how you tell downstream consumers "there's new source
+to fetch." A path dependency instead points Cargo directly at a live
+directory on your filesystem — there's no snapshot step at all, so every
+<code>cargo build</code> simply recompiles against whatever bytes are on disk right
+now, which is exactly why the workspace's fast within-repo iteration loop
+and the crates.io-consumer's need for explicit version bumps are two
+different mechanisms, not the same one behaving differently.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Add a fourth workspace member, <code>crates/shared-test-utils</code>, containing a
 <code>pub fn sample_task() -&gt; core::Task</code> helper, and add it as a

@@ -1929,6 +1929,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2261,6 +2272,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2421,6 +2443,32 @@ estimate for a real workload.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>String</code>/<code>Vec</code>'s growth strategy explains exactly why <code>with_capacity</code>
+matters and by how much: without it, each push that exceeds current
+capacity triggers a reallocation that (in the standard library's
+implementation) roughly doubles capacity and copies every existing byte into
+the new buffer — for <code>n</code> pushes with no pre-reservation, the total bytes
+copied across all reallocations sums to a geometric series that's still
+amortized O(n) overall, but with a real constant-factor cost from the actual
+memmove work and from old buffers being freed and immediately re-allocated
+elsewhere. <code>with_capacity(n)</code> collapses that entire series into one
+allocation and zero copies, which is why the debug-vs-release gap in this
+module's benchmark is so much larger for the naive version — release-mode
+LLVM can vectorize the copying work but can't eliminate the reallocations
+themselves.</p>
+<p>The generic-vs-<code>dyn</code> gap only shows up in release builds because it's
+fundamentally an inlining story: debug builds disable most LLVM
+optimization passes (including inlining) to keep compile times low and
+stack traces accurate, so a monomorphized generic call and a vtable call
+both remain genuine, non-inlined function calls in debug mode — the
+indirection cost that normally distinguishes them barely registers next to
+the overhead debug builds already carry everywhere. Only in <code>--release</code>
+does LLVM aggressively inline the monomorphized version directly into the
+loop body (impossible for the vtable version, since the concrete
+implementation isn't known until runtime), which is when the real
+zero-cost-abstraction gap between the two dispatch strategies actually
+appears in the numbers.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Add a third string-building variant, <code>build_report_iter</code>, using
 <code>items.join(", ")</code> (the standard library's own joiner). Time all three

@@ -1272,6 +1272,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2294,6 +2305,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2547,6 +2569,27 @@ purposes:</p>
 "this program has a bug," not "this input was invalid." A library that
 panics on bad user input instead of returning <code>Err</code> takes away the caller's
 ability to handle it gracefully.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>panic!</code> triggers <strong>stack unwinding</strong> by default on most platforms: it walks
+back up the call stack frame by frame, running each frame's destructors
+(<code>Drop</code> impls) as it goes, exactly the way a normal function return would,
+until it reaches either a <code>catch_unwind</code> boundary or the top of the thread,
+which then terminates. This is why a panic doesn't necessarily leak memory
+or leave files half-written — your <code>Drop</code> implementations (closing a file,
+unlocking a mutex, freeing a buffer) still run during the unwind, the same
+cleanup code that would run on normal scope exit. You can switch a binary to
+<code>panic = "abort"</code> in <code>Cargo.toml</code>, which skips unwinding entirely and kills
+the process immediately — smaller binary, no unwind tables, but no cleanup
+either; that's a deliberate size/behavior tradeoff, not a bug.</p>
+<p><code>impl From&lt;X&gt; for AppError</code> plus <code>?</code> is the mechanism, not just convention:
+recall from Module 7 that <code>?</code> desugars to <code>return Err(From::from(e))</code>, so
+writing <code>From</code> impls for each underlying error type (<code>io::Error</code>,
+<code>ParseIntError</code>, ...) is literally what lets a single <code>?</code> at each call site
+convert into your unified <code>AppError</code> without you writing <code>.map_err(...)</code>
+everywhere. The trait dispatch here is resolved entirely at compile
+time — the compiler picks the concrete <code>From</code> impl matching the error type in
+scope, so there's no runtime cost to this error-unification pattern beyond
+constructing the enum variant itself.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

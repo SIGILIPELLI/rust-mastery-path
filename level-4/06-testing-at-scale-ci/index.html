@@ -2063,6 +2063,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2316,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2532,6 +2554,29 @@ any loop-based test so the failure output is actually actionable.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>Doc tests are a real compile-and-run step, not a documentation-linting
+feature: <code>cargo test</code> extracts every <code>```rust</code> fenced block from <code>///</code>
+comments, wraps each one in an implicit <code>fn main() { ... }</code> (unless it
+already defines one), compiles it as its own tiny standalone crate linked
+against your library, and executes it — a failing <code>assert!</code> or a compile
+error inside the example fails exactly like a <code>#[test]</code> function would.
+This is why a doc example can "rot" silently: nothing forces you to notice
+an API signature changed until the doc test's separate compilation step
+catches the mismatch, since the example lives in a comment the normal
+build never type-checks on its own.</p>
+<p>Clippy and <code>rustc</code> being separate lint sets reflects how they're actually
+built: <code>rustc</code>'s own warnings come from lint passes baked directly into the
+compiler and run on every <code>cargo build</code>, while <code>clippy</code> is implemented as
+its own tool that hooks into the compiler via <code>rustc</code>'s driver API,
+re-running much of the same analysis (MIR, type information) but applying a
+much larger, separately maintained set of idiom and correctness lints on
+top. <code>-D warnings</code> matters because <code>cargo clippy</code> without it treats lint
+violations as warnings, and a process's exit code (what CI actually checks
+to decide pass/fail) is determined by whether compilation <em>errored</em>, not by
+how many warnings were printed — <code>-D warnings</code> promotes every clippy
+warning to a hard error precisely so its exit code reflects the lint
+results.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Add a fourth CI step, <code>cargo test --doc</code>, and write a doc comment on
 <code>is_palindrome</code> with a <code>```rust</code> example that calls it and asserts on the

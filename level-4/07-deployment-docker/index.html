@@ -2069,6 +2069,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2261,6 +2272,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2424,6 +2446,27 @@ runtime configuration.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>The dependency-caching layer trick works because <code>cargo build</code> decides what
+to recompile based on file content hashes recorded per-crate, and Docker
+decides whether to reuse a cached layer based on whether the <em>inputs to that
+<code>RUN</code> instruction</em> (the files <code>COPY</code>'d before it) changed at all. Copying
+<code>Cargo.toml</code>/<code>Cargo.lock</code> first and running a dependency-only build means
+Docker's own layer cache — not Cargo's — is what's actually being exploited:
+as long as those two manifest files are byte-identical to a previous build,
+Docker reuses the entire cached layer (skipping the <code>RUN cargo build</code>
+command outright) regardless of what changed in <code>src/</code> afterward, since that
+<code>COPY src ./src</code> step comes later and only invalidates layers after itself.</p>
+<p><code>FROM scratch</code> needing a musl-linked binary is a direct consequence of how
+Linux dynamic linking works underneath a normal Rust build: <code>cargo build</code>
+on the default <code>x86_64-unknown-linux-gnu</code> target produces a binary whose
+ELF header lists <code>glibc</code>'s shared object as a runtime dependency, resolved
+by the OS's dynamic linker (<code>ld-linux.so</code>) at process start — an empty
+<code>scratch</code> image has no filesystem at all, so that linker and the shared
+library it needs simply aren't present for the kernel to load. The
+<code>musl</code> target instead statically links the C library directly into the
+binary at compile time, producing an ELF file with no external shared-object
+dependencies, which is the only reason a truly empty base image can run it.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Add a <code>HEALTHCHECK</code> instruction to the Dockerfile that curls an <code>/healthz</code>
 endpoint (reuse the health-check server from module 04) every 10 seconds,

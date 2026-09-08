@@ -1008,6 +1008,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2294,6 +2305,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2459,6 +2481,30 @@ part of your public API.</p>
 <p>Running <code>cargo build</code> (or <code>cargo run</code>) after adding a line to <code>[dependencies]</code>
 automatically downloads and compiles the crate from
 <a href="https://crates.io">crates.io</a> — no separate install step needed.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>Modules (<code>mod</code>) are a purely compile-time namespacing and visibility
+mechanism — they don't correspond to separate compiled units, dynamic
+libraries, or runtime lookups the way packages do in some languages. The
+compiler resolves every <code>use</code> path and privacy check (<code>pub</code> vs private)
+during compilation and then erases the module structure entirely; at the
+machine-code level there's no notion of "module boundary" left, just
+functions and data laid out by the optimizer. This is why moving code
+between modules never affects performance — it's a source-organization
+concept that disappears before codegen.</p>
+<p><code>cargo build</code> resolving <code>rand = "0.8"</code> involves two separate files working
+together: <code>Cargo.toml</code> states version <em>requirements</em> (semver ranges), while
+<code>Cargo.lock</code> records the exact versions actually resolved and downloaded —
+committing <code>Cargo.lock</code> for a binary project is what makes builds
+reproducible across machines and time, since re-resolving <code>"0.8"</code> a year
+later could otherwise pick a different patch release. Each dependency crate
+is compiled from source on your machine (crates.io distributes source, not
+prebuilt binaries) and then, critically, <strong>statically linked</strong> into your
+final binary by default — there's no <code>rand.dll</code>/<code>.so</code> your program loads at
+runtime, no dependency-resolution step at program startup. That's a direct
+consequence of Rust's ahead-of-time, whole-program-optimizing compilation
+model: the compiler can inline and optimize across crate boundaries because
+everything is available as source (or pre-compiled <code>.rlib</code> artifacts) at
+build time.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

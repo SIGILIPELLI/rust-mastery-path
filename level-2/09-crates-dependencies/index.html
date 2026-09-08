@@ -1395,6 +1395,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2316,6 +2327,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2531,6 +2553,31 @@ shared dependencies redundantly for each crate.</p>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>cargo<span class="w"> </span>build<span class="w"> </span>-p<span class="w"> </span>cli<span class="w">       </span><span class="c1"># builds just the `cli` member</span>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>cargo<span class="w"> </span><span class="nb">test</span><span class="w">               </span><span class="c1"># runs tests across all members</span>
 </code></pre></div>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>Cargo features are <strong>compile-time, additive flags</strong> that gate code behind
+<code>#[cfg(feature = "...")]</code> attributes — enabling <code>tokio</code>'s <code>"rt"</code> feature
+means the conditional-compilation pass includes that module's source in the
+build at all; disabling it means that code is never even parsed into the
+final crate, not merely dead-code-eliminated later. This is why fewer
+features can mean a genuinely smaller binary and faster compile, not just a
+smaller download: unused feature-gated code never enters the compilation
+unit in the first place. Features are also required to be <em>additive</em> by
+convention (enabling a feature should never remove functionality) precisely
+because Cargo unifies features across your whole dependency graph — if two
+crates in your tree both depend on <code>tokio</code> but request different feature
+sets, Cargo enables the <em>union</em> of both requests for the single shared
+<code>tokio</code> build, so a feature that behaved differently rather than just
+added-to would silently break whichever crate didn't ask for it.</p>
+<p>A workspace's single shared <code>Cargo.lock</code> and <code>target/</code> directory exist
+because Cargo builds a workspace as one unified dependency graph: if <code>core</code>
+and <code>cli</code> both depend on <code>serde = "1"</code>, Cargo resolves and compiles it
+exactly once and both member crates link against that one compiled
+<code>.rlib</code>, rather than each member crate independently resolving and
+rebuilding its own copy. A path dependency (<code>core = { path = "../core" }</code>)
+skips crates.io entirely — Cargo just points the compiler at that local
+source tree directly, which is why edits to <code>core</code> are picked up on the
+very next <code>cargo build</code> in <code>cli</code> with no publish/version-bump/re-fetch cycle
+needed.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

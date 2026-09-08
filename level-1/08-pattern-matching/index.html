@@ -980,6 +980,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2294,6 +2305,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2440,6 +2462,28 @@ only care about matching a specific subset of a struct's fields.</p>
 <p><code>stack.pop()</code> returns <code>Option&lt;T&gt;</code> (<code>Some</code> while there are elements, <code>None</code>
 once empty) — <code>while let</code> loops for as long as the pattern keeps matching
 <code>Some</code>, stopping automatically at <code>None</code>.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>match</code> compiles to a <strong>decision tree</strong>, not a linear chain of <code>if</code>
+comparisons — the compiler analyzes all the arms together and builds an
+efficient branching structure (often a jump table for simple enum
+discriminants, or a tree of tests for structural patterns), so matching
+against ten variants isn't ten sequential checks in the worst case. This is
+also the same machinery that powers exhaustiveness checking: the compiler
+literally constructs the space of possible values the scrutinee's type can
+take and verifies your arms cover all of it, which is why adding a variant to
+an enum turns every <code>match</code> on it elsewhere in the codebase that lacks a
+wildcard <code>_</code> arm into a compile error instead of a silent runtime bug.</p>
+<p><code>if let Some(v) = config_value</code> and <code>while let</code> are sugar over that same
+<code>match</code> machinery, just for the single-pattern case — <code>if let PAT = EXPR {
+BODY }</code> desugars to <code>match EXPR { PAT =&gt; BODY, _ =&gt; {} }</code>. <code>while let Some(top)
+= stack.pop()</code> desugars to a <code>loop</code> containing a <code>match</code> that <code>break</code>s on the
+non-matching arm: <code>loop { match stack.pop() { Some(top) =&gt; { ... }, None =&gt;
+break } }</code>. Since <code>Vec::pop</code> returns <code>Option&lt;T&gt;</code> by <em>moving</em> the popped
+element out rather than returning a reference, each iteration also
+transfers ownership of <code>top</code> to the loop body — no separate bounds check or
+null test is needed, because "empty" is represented as <code>None</code>, a value the
+match has to handle explicitly rather than a sentinel that could be
+forgotten.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

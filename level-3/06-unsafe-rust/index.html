@@ -1643,6 +1643,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2228,6 +2239,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2375,6 +2397,30 @@ before calling this — there's a precondition." Inside the body, you still
 need explicit <code>unsafe { }</code> blocks to actually perform pointer derefs or
 other unsafe operations; the two <code>unsafe</code>s answer different questions
 (caller's obligation vs. this specific operation's justification).</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>unsafe</code> unlocks exactly five operations and nothing else: dereferencing a
+raw pointer, calling an <code>unsafe fn</code>, accessing or mutating a <code>static mut</code>,
+implementing an <code>unsafe trait</code>, and accessing a union field. Everything else
+you already rely on — the borrow checker's move/borrow analysis, type
+checking, exhaustiveness checking in <code>match</code>, trait resolution — stays
+fully active inside an <code>unsafe</code> block; <code>unsafe</code> is not a mode switch that
+turns Rust into C, it's a narrow permission grant for those five specific
+capabilities the compiler otherwise can't verify are sound. That's why the
+<code>split_at_mut_manual</code>-style pattern above still needs safe-Rust bookkeeping
+(bounds checks, index arithmetic) surrounding the raw-pointer arithmetic
+that only the <code>unsafe</code> block itself performs.</p>
+<p>The reason <code>unsafe</code> code can still cause real corruption despite this
+narrow scope is that it's opting <em>out</em> of the specific guarantees the
+borrow checker or runtime bounds-checker would otherwise enforce for that
+one operation — a raw pointer carries none of a reference's compiler-tracked
+lifetime, so nothing stops it from outliving what it points to; a
+<code>static mut</code> carries no compiler-enforced exclusivity, so nothing stops two
+threads from racing on it (hence the <code>SAFETY:</code> comment above having to argue
+the program is single-threaded by other means, since the compiler itself
+can no longer prove it). This is the actual contract: <code>unsafe</code> shifts the
+burden of proof for one narrow guarantee from "the compiler checks it" to
+"the programmer asserts it in a comment and had better be right," while
+every other guarantee in the type system keeps working exactly as before.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

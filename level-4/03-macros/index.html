@@ -1968,6 +1968,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2283,6 +2294,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2523,6 +2545,30 @@ actually produced, which is usually the fastest way to find the real bug.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>Macro expansion happens in a dedicated compiler phase before name
+resolution, type checking, or borrow checking ever run — both <code>macro_rules!</code>
+and proc macros operate purely on syntax (token trees), producing more Rust
+source that then gets fed back through the normal front-end. This ordering
+is exactly why macro-generated code is type-checked with the same rigor as
+hand-written code (there's no separate, weaker path), and why errors inside
+expanded code report spans pointing at the macro invocation rather than the
+generated line — the compiler tracks provenance per token specifically so
+error messages can point somewhere a human actually wrote something, even
+though the AST it's type-checking was synthesized.</p>
+<p><code>macro_rules!</code>'s "automatic hygiene" is a real, enforced property, not just
+convention: each macro expansion is tagged with a syntax-context marker, and
+identifiers introduced <em>by</em> the macro (a local variable the macro itself
+declares) can't accidentally capture or collide with identifiers from the
+call site, even if both happen to be spelled the same way — the compiler
+treats them as distinct names internally despite printing identically. Proc
+macros lose this for free because they build raw token streams via <code>quote!</code>
+without that hygiene-context bookkeeping automatically applied to every
+generated identifier, which is why a derive macro generating a helper
+function has to actively avoid plausible name collisions (often by using
+name-mangling schemes like prefixing with <code>__</code> or the trait name) rather
+than relying on the compiler to keep them separate the way <code>macro_rules!</code>
+would.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Extend <code>describe_derive</code> to also count fields for enums (currently
 <code>field_count</code> is <code>0</code> for anything that isn't <code>Data::Struct</code>) — for an enum,

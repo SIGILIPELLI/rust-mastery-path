@@ -1760,6 +1760,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2283,6 +2294,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2493,6 +2515,29 @@ parameter from context alone.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>A trait's vtable (Module 3's fat-pointer explanation) is one fixed table of
+function pointers, generated <em>once</em> per concrete implementing type — this is
+precisely why a generic method breaks object safety. <code>fn process&lt;U&gt;(&amp;self,
+item: U)</code> would need a different vtable entry for every possible <code>U</code> it
+could ever be called with, but the vtable is built at the point the concrete
+type is known, long before all future call sites exist; there's no way to
+size or populate a table for an open-ended set of monomorphized variants.
+A method taking <code>self</code> by value has a related problem: the vtable is reached
+through a fixed-size fat pointer, but "the size of <code>Self</code>" isn't known when
+generating code that only has <code>dyn Trait</code> — the vtable is exactly the
+mechanism that lets a <code>&amp;self</code>/<code>&amp;mut self</code> call work generically over unknown
+concrete sizes, and it breaks down the moment a signature needs <code>Self</code>'s
+concrete size or identity directly.</p>
+<p>The turbofish need (<code>largest::&lt;i32&gt;(&amp;[])</code>) is about what type inference can
+observe, not a limitation of generics themselves: Rust's inference works
+bidirectionally from concrete values it can see in the call — an argument of
+type <code>Vec&lt;i32&gt;</code> fixes <code>T = i32</code> because unification runs against that
+argument's real type. When no argument in the call actually mentions <code>T</code>
+(an empty slice literal <code>&amp;[]</code> gives the compiler no element to inspect),
+there is no expression left for unification to pin <code>T</code> down from, so the
+turbofish supplies the fact directly instead of leaving it to be inferred
+from data that isn't there.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Add a third shape, <code>Triangle { base: f64, height: f64 }</code>, implementing
 <code>Shape</code>. Write a function <code>largest_shape(shapes: &amp;[Box&lt;dyn Shape&gt;]) -&gt; &amp;dyn

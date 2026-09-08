@@ -1598,6 +1598,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2250,6 +2261,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2403,6 +2425,30 @@ first.</p>
 frequent source of "wrong value in wrong column" bugs that the compiler
 cannot catch — SQLite only tells you at query-prepare time, and only if the
 name doesn't match at all.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p><code>Connection</code>'s lack of <code>Sync</code> isn't a rusqlite design choice, it's an FFI
+fact propagating up through the type system: <code>rusqlite::Connection</code> wraps a
+raw pointer to a <code>sqlite3*</code> C struct, and the SQLite C library documents
+that a single connection handle used without its own internal mutex is not
+safe for concurrent access from multiple threads. Because a raw pointer has
+no <code>Sync</code> impl by default, and Rust auto-derives <code>Send</code>/<code>Sync</code> structurally
+(as covered in Module 1's concurrency chapter), <code>Connection</code> correctly
+inherits "not safely shareable" from the FFI boundary — the compiler is
+faithfully reporting a real constraint of the C library underneath, not an
+arbitrary restriction. <code>Arc&lt;Mutex&lt;Connection&gt;&gt;</code> is the direct fix: <code>Arc</code>
+supplies safe shared ownership across threads and <code>Mutex</code> serializes actual
+access to the connection, satisfying SQLite's real requirement instead of
+working around a compiler opinion.</p>
+<p>The borrowed-row restriction is ordinary lifetime tracking, not a rusqlite
+quirk: <code>stmt.query_map</code> returns a <code>Rows</code>/<code>MappedRows</code> iterator that holds an
+internal reference into the still-live prepared statement's cursor state
+inside SQLite — the iterator's lifetime parameter is tied to <code>&amp;stmt</code>, so the
+borrow checker treats returning it past <code>stmt</code>'s scope exactly like
+returning a reference to a local variable in Module 2's lifetime rules.
+<code>.collect::&lt;Vec&lt;Task&gt;&gt;()</code> converts each borrowed row into a fully owned
+<code>Task</code> while the statement is still alive, breaking the borrow and letting
+the resulting <code>Vec</code> (which owns its data outright) escape the function
+freely.</p>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

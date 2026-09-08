@@ -1227,6 +1227,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2316,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2617,6 +2639,32 @@ runtime (like items loaded from a plugin or config).</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>The generics-vs-trait-objects tradeoff above is really a static-vs-dynamic
+dispatch tradeoff, and it's worth seeing what each costs in the compiled
+binary. Monomorphization means <code>Pair&lt;i32&gt;::method()</code> and
+<code>Pair&lt;String&gt;::method()</code> are two entirely separate functions in the final
+binary, each with its logic specialized and inlinable against the concrete
+type — the compiler can see through the call completely, which is why
+generic code can be just as fast as, or faster than, hand-written
+type-specific code (inlining across a monomorphized call is routine; across
+a trait-object call it usually isn't). The cost is code size: ten
+instantiations of a generic function mean roughly ten copies of its
+compiled body, which is the real reason large Rust binaries sometimes
+surprise people ("binary bloat" from monomorphization).</p>
+<p><code>Box&lt;dyn Summary&gt;</code> takes the opposite trade: <code>dyn Summary</code> is an <strong>unsized</strong>
+type (the compiler doesn't know at compile time whether it's holding an
+<code>Article</code> or a <code>Tweet</code>, so it doesn't know the size), which is why it can
+only exist behind a pointer like <code>Box</code>, <code>&amp;</code>, or <code>Rc</code>. That pointer is
+actually a <strong>fat pointer</strong> — two words instead of one: a data pointer to the
+heap-allocated value, and a pointer to a <strong>vtable</strong>, a static table of
+function pointers generated once per concrete type at compile time
+(<code>Article</code>'s vtable, <code>Tweet</code>'s vtable) holding the addresses of that type's
+trait-method implementations. Calling <code>item.summarize()</code> on a trait object
+means an indirect call through the vtable — one extra pointer dereference
+compared to the direct, inlinable call a monomorphized generic gets. That
+single indirect jump is the entire "small runtime dispatch overhead" the
+text above is referring to.</p>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Define a trait <code>trait Shape { fn area(&amp;self) -&gt; f64; fn name(&amp;self) -&gt; &amp;str; }</code>.
 Implement it for a <code>struct Circle { radius: f64 }</code> and a

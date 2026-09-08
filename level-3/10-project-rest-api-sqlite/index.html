@@ -1799,6 +1799,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stretch-goals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2316,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stretch-goals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2562,6 +2584,26 @@ time.</p>
 compiles the SQLite C library from source on first <code>cargo build</code>; subsequent
 builds are fast because it's cached, but a <code>cargo clean</code> resets that cost —
 worth knowing before assuming a slow CI run is a caching bug.</p>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>Module privacy tripping people up across <code>main.rs</code>/<code>db.rs</code>/<code>handlers.rs</code>
+is the same tree-scoped visibility model from Level 1's modules chapter,
+just spread across a real multi-file crate: Rust's module tree is
+determined purely by <code>mod</code> declarations and file layout, and <code>pub</code> is
+checked relative to that tree at compile time with no runtime reflection to
+patch around a missing <code>pub</code> — a private field is invisible from another
+module regardless of how the code is organized on disk, which is why
+<code>Book</code>'s fields need to be individually <code>pub</code> (or the whole struct
+constructed only from within <code>db.rs</code>) for <code>handlers.rs</code> to build one.</p>
+<p>This whole project also demonstrates monomorphization and shared-ownership
+mechanics working together at a larger scale than any single earlier
+module: <code>AppState</code> wraps the database connection in <code>Arc&lt;Mutex&lt;Connection&gt;&gt;</code>,
+so cloning it per request (as in Module 5's axum chapter) is always a cheap
+pointer-and-atomic-count operation regardless of how many rows are in the
+<code>books</code> table, while <code>Connection</code>'s lack of <code>Sync</code> (Module 4) is exactly why
+the <code>Mutex</code> has to be there in the first place — every handler that touches
+the database serializes through that one lock, which is also why a
+slow query in one handler can visibly stall unrelated requests: there's
+only one real SQLite connection being shared, not a pool.</p>
 <h2 id="stretch-goals">Stretch goals<a class="headerlink" href="#stretch-goals" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Add <code>PUT /books/{id}</code> to update an existing book's fields, returning <code>200</code>

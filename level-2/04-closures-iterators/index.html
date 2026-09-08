@@ -1244,6 +1244,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2294,6 +2305,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cheat-sheet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2555,6 +2577,32 @@ to work with plain values instead of references.</p>
 <a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>true
 <a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>true
 </code></pre></div>
+<h2 id="how-it-actually-works">How It Actually Works<a class="headerlink" href="#how-it-actually-works" title="Permanent link">&para;</a></h2>
+<p>Iterator chains like <code>words.iter().map(...).filter(...).take(2)</code> compile
+away completely — this is the flagship example of Rust's "zero-cost
+abstraction" claim, and it's worth understanding mechanically why. <code>Iterator</code>
+is a trait with one required method, <code>fn next(&amp;mut self) -&gt; Option&lt;Self::
+Item&gt;</code>, and each adapter (<code>Map</code>, <code>Filter</code>, <code>Take</code>, ...) is its own small
+generic struct that wraps the previous iterator and implements <code>next</code> in
+terms of it. Nothing runs until something finally calls <code>.next()</code> — a <code>for</code>
+loop, <code>.collect()</code>, <code>.sum()</code>, or similar — which is why adapters are called
+"lazy." When monomorphization specializes this whole chain for its concrete
+element type, LLVM can then <strong>inline</strong> every layer's <code>next()</code> into the
+consumer's loop, collapsing what looks like four nested struct calls into a
+single tight loop with no indirection — commonly identical machine code to
+the hand-written <code>for</code> loop with manual bounds checks and <code>if</code>s that most
+other languages would need.</p>
+<p>Closures achieve their own zero-cost story by compiling to an anonymous
+struct holding exactly the captured variables, with the closure body
+becoming that struct's <code>Fn</code>/<code>FnMut</code>/<code>FnOnce</code> trait implementation — there's
+no hidden heap allocation or environment object the way closures work in a
+garbage-collected language, unless you explicitly box one (`Box&lt;dyn Fn(...)</p>
+<blockquote>
+<p><code>) for dynamic dispatch. Which of the three traits a closure gets depends
+on how it uses its captures: reading only implements</code>Fn<code>, mutating one
+implements</code>FnMut<code>, and moving a captured value out implements only</code>FnOnce` — the compiler infers the least restrictive trait it can, and
+that's exactly what governs whether you can call a closure multiple times.</p>
+</blockquote>
 <h2 id="cheat-sheet">Cheat sheet<a class="headerlink" href="#cheat-sheet" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
