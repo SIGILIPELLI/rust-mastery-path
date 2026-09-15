@@ -1,3 +1,7 @@
+---
+description: "Async/Await Basics — Module 01 covered OS threads — real parallelism, one stack per thread, managed by the operating system's scheduler. Async Rust solves…"
+---
+
 # 02 · Async/Await Basics
 
 [Module 01](01-concurrency.md) covered OS threads — real parallelism, one

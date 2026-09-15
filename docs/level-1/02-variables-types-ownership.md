@@ -1,3 +1,7 @@
+---
+description: "Variables, Types & Ownership Basics — That second assignment doesn't compile. let creates a binding you can read but not change — this is the default, not…"
+---
+
 # 02 · Variables, Types & Ownership Basics
 
 ## 🎥 Video walkthrough
@@ -247,6 +251,12 @@ the double-free bug ownership exists to make impossible.
 | `[T; N]` | Fixed-size array | `let a = [1, 2, 3];` | Yes, if `T` is |
 | `String` | Growable, heap-allocated text | `String::from("hi")` | No |
 | `Vec<T>` | Growable, heap-allocated list | `vec![1, 2, 3]` | No |
+
+## 🔀 See this in another language
+
+- [Ruby — Variables & Types](https://sigilipelli.github.io/ruby-mastery-path/level-1/02-variables-types/)
+- [R — Variables & Types](https://sigilipelli.github.io/r-mastery-path/level-1/02-variables-types/)
+- [Java — Variables, Data Types & Operators](https://sigilipelli.github.io/java-mastery-path/level-1/02-variables-data-types/)
 
 ## Exercise
 

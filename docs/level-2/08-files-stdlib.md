@@ -1,3 +1,7 @@
+---
+description: "Files & the Standard Library — Almost every real program eventually needs to read a config file, write a log, or process something bigger than fits…"
+---
+
 # 08 · Files & the Standard Library
 
 Almost every real program eventually needs to read a config file, write a

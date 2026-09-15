@@ -1,3 +1,7 @@
+---
+description: "Unsafe Rust — unsafe doesn't turn off the borrow checker or type checking — it unlocks five specific operations the compiler can't otherwise verify…"
+---
+
 # 06 · Unsafe Rust
 
 `unsafe` doesn't turn off the borrow checker or type checking — it unlocks

@@ -1,3 +1,7 @@
+---
+description: "Smart Pointers (Box, Rc, RefCell) — A smart pointer is a struct that behaves like a reference but adds extra capabilities — heap allocation, shared…"
+---
+
 # 07 · Smart Pointers (Box, Rc, RefCell)
 
 A smart pointer is a struct that behaves like a reference but adds extra

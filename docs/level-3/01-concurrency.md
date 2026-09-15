@@ -1,3 +1,7 @@
+---
+description: "Concurrency — Rust's headline safety pitch isn't just 'no null pointer dereferences' — it's 'no data races, enforced at compile time.' Most languages let…"
+---
+
 # 01 · Concurrency
 
 Rust's headline safety pitch isn't just "no null pointer dereferences" — it's

@@ -1,3 +1,7 @@
+---
+description: "Capstone: URL Shortener Service — This capstone pulls together the whole path: a multi-file Cargo project, a persistent SQLite-backed axum service (Level…"
+---
+
 # 10 · Capstone: URL Shortener Service
 
 This capstone pulls together the whole path: a multi-file Cargo project, a

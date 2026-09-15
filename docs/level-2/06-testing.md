@@ -1,3 +1,7 @@
+---
+description: "Testing in Rust — Rust has a testing framework built directly into the language and Cargo — no external test runner to install, no separate config file to…"
+---
+
 # 06 · Testing in Rust
 
 Rust has a testing framework built directly into the language and Cargo —

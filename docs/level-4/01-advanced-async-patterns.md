@@ -1,3 +1,7 @@
+---
+description: "Advanced Async Patterns — Basic async/.await gets one future running at a time, sequentially. Real async code needs to run several futures concurrently…"
+---
+
 # 01 · Advanced Async Patterns
 
 Basic `async`/`.await` gets one future running at a time, sequentially.

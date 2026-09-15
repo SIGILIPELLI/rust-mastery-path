@@ -1,3 +1,7 @@
+---
+description: "Performance Optimization — Rust's performance story is 'zero-cost abstractions, if you use the right one' — the language doesn't stop you from writing…"
+---
+
 # 02 · Performance Optimization
 
 Rust's performance story is "zero-cost abstractions, if you use the right

@@ -1,3 +1,7 @@
+---
+description: "Closures & Iterators — Closures are anonymous functions that can capture variables from the scope they're defined in; iterators are Rust's abstraction for…"
+---
+
 # 04 · Closures & Iterators
 
 Closures are anonymous functions that can capture variables from the scope

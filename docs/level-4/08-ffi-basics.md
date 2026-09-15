@@ -1,3 +1,7 @@
+---
+description: "FFI Basics — Rust can call into C libraries and be called from them, using extern 'C' to opt into C's calling convention and ABI. Everything on the other…"
+---
+
 # 08 · FFI Basics
 
 Rust can call into C libraries and be called from them, using `extern "C"`

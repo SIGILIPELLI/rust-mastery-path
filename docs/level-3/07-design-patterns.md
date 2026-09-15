@@ -1,3 +1,7 @@
+---
+description: "Design Patterns in Rust — Classic OOP design patterns exist to work around limitations Rust doesn't have — inheritance-based polymorphism, null…"
+---
+
 # 07 · Design Patterns in Rust
 
 Classic OOP design patterns exist to work around limitations Rust doesn't

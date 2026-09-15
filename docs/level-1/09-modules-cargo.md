@@ -1,3 +1,7 @@
+---
+description: "Modules & Cargo Project Structure — As a project grows past one file, you need a way to organize code into named groups and control what's visible from…"
+---
+
 # 09 · Modules & Cargo Project Structure
 
 As a project grows past one file, you need a way to organize code into named
@@ -195,6 +199,12 @@ build time.
 | Expose an item | `pub fn ...` / `pub struct ...` |
 | Bring a path into scope | `use path::to::item;` |
 | Add a dependency | Edit `[dependencies]` in `Cargo.toml` |
+
+## 🔀 See this in another language
+
+- [Ruby — Gems & Bundler Basics](https://sigilipelli.github.io/ruby-mastery-path/level-1/09-gems-bundler/)
+- [R — Packages](https://sigilipelli.github.io/r-mastery-path/level-1/09-packages/)
+- [Java — Packages & Build Tools Intro](https://sigilipelli.github.io/java-mastery-path/level-1/09-packages-build-tools/)
 
 ## Exercise
 

@@ -1,3 +1,7 @@
+---
+description: "Generics & Trait Objects — Rust gives you two different ways to write code that works over multiple types: generics (), resolved at compile time into a…"
+---
+
 # 09 · Generics & Trait Objects
 
 Rust gives you two different ways to write code that works over multiple

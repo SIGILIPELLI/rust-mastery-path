@@ -1,3 +1,7 @@
+---
+description: "Control Flow — Note there are no parentheses required around the condition (unlike C/Java), but the braces are mandatory even for a single statement."
+---
+
 # 03 · Control Flow
 
 ## 🎥 Video walkthrough
@@ -203,6 +207,12 @@ code.
 | `for x in collection.iter()` | No | Visit every element of a collection |
 | `continue` | — | Skip to the next loop iteration |
 | `break` | Optional value (in `loop`) | Exit a loop early |
+
+## 🔀 See this in another language
+
+- [Ruby — Control Flow](https://sigilipelli.github.io/ruby-mastery-path/level-1/03-control-flow/)
+- [R — Control Flow](https://sigilipelli.github.io/r-mastery-path/level-1/03-control-flow/)
+- [Java — Control Flow](https://sigilipelli.github.io/java-mastery-path/level-1/03-control-flow/)
 
 ## Exercise
 

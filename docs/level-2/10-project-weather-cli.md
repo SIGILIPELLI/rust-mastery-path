@@ -1,3 +1,7 @@
+---
+description: "Project — Weather CLI — The capstone for Level 2: a command-line tool that looks up a city, fetches its current conditions and an hourly forecast from a…"
+---
+
 # 10 · Project — Weather CLI
 
 The capstone for Level 2: a command-line tool that looks up a city, fetches

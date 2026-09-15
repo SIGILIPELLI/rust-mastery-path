@@ -1,3 +1,7 @@
+---
+description: "Workspace Organization — A single Cargo.toml works until a project grows a shared library, a CLI, and an HTTP API that all need the same core types — at…"
+---
+
 # 09 · Workspace Organization
 
 A single `Cargo.toml` works until a project grows a shared library, a CLI,

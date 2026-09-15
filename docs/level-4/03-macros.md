@@ -1,3 +1,7 @@
+---
+description: "Macros — Rust has two macro systems that solve different problems. macro_rules! (declarative macros) pattern-match on token trees and substitute — good…"
+---
+
 # 03 · Macros
 
 Rust has two macro systems that solve different problems. `macro_rules!`

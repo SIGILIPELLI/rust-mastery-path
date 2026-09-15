@@ -1,3 +1,7 @@
+---
+description: "Testing at Scale & CI — A handful of #[test] functions is fine for one file. A real project needs tests that scale — table-driven cases instead of one…"
+---
+
 # 06 · Testing at Scale & CI
 
 A handful of `#[test]` functions is fine for one file. A real project needs

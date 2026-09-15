@@ -1,3 +1,7 @@
+---
+description: "Functions — Parameters always require explicit type annotations (name: &str) — Rust never infers a function's parameter or return types from how it's…"
+---
+
 # 04 · Functions
 
 ## 🎥 Video walkthrough
@@ -190,6 +194,12 @@ that runs.
 | Explicit return | `return a + b;` | Needed for early exits, requires a semicolon |
 | No return value | `fn log(msg: &str) { ... }` | Implicitly returns `()`, the unit type |
 | Block as expression | `let y = { ...; last_expr };` | A `{ }` block evaluates to its last unterminated expression |
+
+## 🔀 See this in another language
+
+- [Ruby — Methods](https://sigilipelli.github.io/ruby-mastery-path/level-1/04-methods/)
+- [R — Functions](https://sigilipelli.github.io/r-mastery-path/level-1/04-functions/)
+- [Java — Methods & Parameters](https://sigilipelli.github.io/java-mastery-path/level-1/04-methods-parameters/)
 
 ## Exercise
 

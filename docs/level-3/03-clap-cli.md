@@ -1,3 +1,7 @@
+---
+description: "Building CLIs with clap — Every language eventually needs a story for command-line tools, and Rust's is the clap crate. It parses std::env::args() into…"
+---
+
 # 03 · Building CLIs with clap
 
 Every language eventually needs a story for command-line tools, and Rust's

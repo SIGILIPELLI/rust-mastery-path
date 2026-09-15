@@ -1,3 +1,7 @@
+---
+description: "Lifetimes — The previous module showed that a reference can never outlive the data it points to — the compiler rejects dangling references before the…"
+---
+
 # 02 · Lifetimes
 
 The previous module showed that a reference can never outlive the data it

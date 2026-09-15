@@ -1,3 +1,7 @@
+---
+description: "Crates & Dependency Management — A crate is Rust's unit of compilation and distribution — your own project is a crate, and every reusable library you pull…"
+---
+
 # 09 · Crates & Dependency Management
 
 A **crate** is Rust's unit of compilation and distribution — your own

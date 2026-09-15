@@ -1,3 +1,7 @@
+---
+description: "Testing & Benchmarking — Rust builds unit testing into the language (#[test], cargo test) and leaves benchmarking to a crate (criterion) because measuring…"
+---
+
 # 08 · Testing & Benchmarking
 
 Rust builds unit testing into the language (`#[test]`, `cargo test`) and

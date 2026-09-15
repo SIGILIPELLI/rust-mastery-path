@@ -1,3 +1,7 @@
+---
+description: "Production Services — A service that only handles happy-path requests isn't production-ready. This module adds the three things an orchestrator…"
+---
+
 # 04 · Production Services
 
 A service that only handles happy-path requests isn't production-ready.

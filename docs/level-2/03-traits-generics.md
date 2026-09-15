@@ -1,3 +1,7 @@
+---
+description: "Traits & Generics — Traits and generics are how Rust writes code once and reuses it across many types, without giving up compile-time checking or paying a…"
+---
+
 # 03 · Traits & Generics
 
 Traits and generics are how Rust writes code once and reuses it across many

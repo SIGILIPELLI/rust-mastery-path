@@ -1,3 +1,7 @@
+---
+description: "Ownership & Borrowing Deep Dive — Level 1 introduced ownership as 'every value has one owner, and assignment moves non-Copy values.' That's true, but it…"
+---
+
 # 01 · Ownership & Borrowing Deep Dive
 
 Level 1 introduced ownership as "every value has one owner, and assignment

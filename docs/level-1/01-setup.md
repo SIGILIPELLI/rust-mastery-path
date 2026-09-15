@@ -1,3 +1,7 @@
+---
+description: "Setup & First Program — The installer downloads the compiler (rustc), the package manager (cargo), and a few companion tools, then adds them to your…"
+---
+
 # 01 · Setup & First Program
 
 ## 🎥 Video walkthrough
@@ -174,6 +178,12 @@ a binary that can be 10-30x faster at runtime — the difference matters
 because Rust's whole value proposition is compiling abstractions down to
 code as tight as hand-written C, and `--release` is the only build mode
 where that promise actually gets cashed in.
+
+## 🔀 See this in another language
+
+- [Ruby — Setup & First Program](https://sigilipelli.github.io/ruby-mastery-path/level-1/01-setup/)
+- [R — Setup & First Script](https://sigilipelli.github.io/r-mastery-path/level-1/01-setup/)
+- [Java — Setup & First Program](https://sigilipelli.github.io/java-mastery-path/level-1/01-setup/)
 
 ## Exercise
 

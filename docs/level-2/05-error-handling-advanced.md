@@ -1,3 +1,7 @@
+---
+description: "Error Handling Advanced — Level 1 covered Option, Result, and a first taste of ?. That's enough for small scripts, but a real program usually has several…"
+---
+
 # 05 · Error Handling Advanced
 
 [Level 1](../level-1/07-error-handling-basics.md) covered `Option`, `Result`,

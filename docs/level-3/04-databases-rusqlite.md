@@ -1,3 +1,7 @@
+---
+description: "Databases with rusqlite — rusqlite gives Rust a thin, typed wrapper over SQLite — no async runtime, no server process, just a .db file (or :memory:) and a…"
+---
+
 # 04 · Databases with rusqlite
 
 `rusqlite` gives Rust a thin, typed wrapper over SQLite — no async runtime,

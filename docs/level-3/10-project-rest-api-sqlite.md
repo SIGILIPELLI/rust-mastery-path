@@ -1,3 +1,7 @@
+---
+description: "Project: REST API with SQLite — This project combines the last three modules — axum, rusqlite, and the error-handling patterns from earlier levels — into…"
+---
+
 # 10 · Project: REST API with SQLite
 
 This project combines the last three modules — axum, rusqlite, and the

@@ -1,3 +1,7 @@
+---
+description: "Project — CLI To-Do App — A small end-to-end project combining everything from Level 1: structs, enums, ownership, collections, error handling, pattern…"
+---
+
 # 10 · Project — CLI To-Do App
 
 A small end-to-end project combining everything from Level 1: structs,
@@ -193,3 +197,9 @@ running.
   [Level 2](../level-2/06-testing.md)).
 
 Completing this project means you're ready for **Level 2 · Intermediate**.
+
+## 🔀 See this in another language
+
+- [Ruby — Project — CLI To-Do App](https://sigilipelli.github.io/ruby-mastery-path/level-1/10-project-todo-app/)
+- [R — Project — Data Analysis Script](https://sigilipelli.github.io/r-mastery-path/level-1/10-project-data-analysis/)
+- [Java — Project — CLI Contact Book](https://sigilipelli.github.io/java-mastery-path/level-1/10-project-contact-book/)

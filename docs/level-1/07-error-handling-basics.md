@@ -1,3 +1,7 @@
+---
+description: "Error Handling Basics (Option, Result) — Rust has no null and no exceptions. Instead, the type system forces you to deal with absence and failure…"
+---
+
 # 07 · Error Handling Basics (Option, Result)
 
 Rust has no `null` and no exceptions. Instead, the *type system* forces you to
@@ -199,6 +203,12 @@ you discard one without handling it.
 | `if let Some(x) = opt` | `Option` | Handle just the "present" case |
 | `if let Ok(x) = res` | `Result` | Handle just the "success" case |
 | `?` | Both | Propagate `None`/`Err` out of the current function |
+
+## 🔀 See this in another language
+
+- [Ruby — Classes & Objects Basics](https://sigilipelli.github.io/ruby-mastery-path/level-1/07-classes-objects/)
+- [R — Reading Data](https://sigilipelli.github.io/r-mastery-path/level-1/07-reading-data/)
+- [Java — Classes & Objects Basics](https://sigilipelli.github.io/java-mastery-path/level-1/07-classes-objects/)
 
 ## Exercise
 

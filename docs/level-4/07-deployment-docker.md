@@ -1,3 +1,7 @@
+---
+description: "Deployment with Docker — Rust compiles to a single native binary with no runtime to ship alongside it — no interpreter, no VM, often no dynamic library…"
+---
+
 # 07 · Deployment with Docker
 
 Rust compiles to a single native binary with no runtime to ship alongside

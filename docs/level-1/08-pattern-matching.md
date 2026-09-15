@@ -1,3 +1,7 @@
+---
+description: "Pattern Matching — Rust's match expression is exhaustive — the compiler forces you to handle every possible case, which eliminates an entire class of…"
+---
+
 # 08 · Pattern Matching
 
 Rust's `match` expression is exhaustive — the compiler forces you to handle
@@ -165,6 +169,12 @@ forgotten.
 | `if let` | Handle just one pattern, ignore the rest |
 | `while let` | Loop for as long as a pattern keeps matching |
 | `..` in a struct pattern | Ignore the remaining fields |
+
+## 🔀 See this in another language
+
+- [Ruby — Blocks, Procs & Lambdas Introduction](https://sigilipelli.github.io/ruby-mastery-path/level-1/08-blocks-procs-lambdas/)
+- [R — Basic Plotting](https://sigilipelli.github.io/r-mastery-path/level-1/08-basic-plotting/)
+- [Java — Exception Handling Basics](https://sigilipelli.github.io/java-mastery-path/level-1/08-exception-handling/)
 
 ## Exercise
 

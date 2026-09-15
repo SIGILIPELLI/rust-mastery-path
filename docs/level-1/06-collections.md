@@ -1,3 +1,7 @@
+---
+description: "Collections (Vec, String, HashMap) — fruits.iter() borrows each element as &T so the Vec is still usable afterward; a plain for fruit in fruits (no…"
+---
+
 # 06 · Collections (Vec, String, HashMap)
 
 ## 🎥 Video walkthrough
@@ -218,6 +222,12 @@ map at a time.
 | `String` | Yes | Yes | `.push_str()`, `.push()`, `+`, `format!`, `.chars()` |
 | `&str` | No (borrowed) | No | `.len()`, `.chars()`, slicing (`&s[0..3]`) |
 | `HashMap<K, V>` | Yes | Yes | `.insert()`, `.get()`, `.entry().or_insert()`, `.iter()` |
+
+## 🔀 See this in another language
+
+- [Ruby — Strings & String Methods](https://sigilipelli.github.io/ruby-mastery-path/level-1/06-strings/)
+- [R — Data Frames Basics](https://sigilipelli.github.io/r-mastery-path/level-1/06-data-frames-basics/)
+- [Java — Strings & String Formatting](https://sigilipelli.github.io/java-mastery-path/level-1/06-strings-formatting/)
 
 ## Exercise
 

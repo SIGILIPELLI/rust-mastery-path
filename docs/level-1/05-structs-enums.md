@@ -1,3 +1,7 @@
+---
+description: "Structs & Enums — Structs group related data together under one type. Enums represent a value that can be one of several distinct variants — Rust's enums…"
+---
+
 # 05 · Structs & Enums
 
 Structs group related data together under one type. Enums represent a value
@@ -196,6 +200,12 @@ compiler optimizes exactly like anything else.
 | Define an enum | `enum Name { VariantA, VariantB(Type), ... }` |
 | Match on an enum | `match value { Name::VariantA => ..., ... }` |
 | Auto-derive traits | `#[derive(Debug, Clone, PartialEq)]` |
+
+## 🔀 See this in another language
+
+- [Ruby — Arrays & Hashes](https://sigilipelli.github.io/ruby-mastery-path/level-1/05-arrays-hashes/)
+- [R — Vectors & Basic Data Structures](https://sigilipelli.github.io/r-mastery-path/level-1/05-vectors-data-structures/)
+- [Java — Arrays & Basic Collections](https://sigilipelli.github.io/java-mastery-path/level-1/05-arrays-collections/)
 
 ## Exercise
 

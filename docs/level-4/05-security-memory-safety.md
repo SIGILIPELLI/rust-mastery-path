@@ -1,3 +1,7 @@
+---
+description: "Security & Memory Safety — Rust eliminates whole classes of memory-safety bugs at compile time — use after free, double free, data races on &mut data …"
+---
+
 # 05 · Security & Memory Safety
 
 Rust eliminates whole classes of memory-safety bugs at compile time — use
