@@ -161,6 +161,12 @@ library it needs simply aren't present for the kernel to load. The
 binary at compile time, producing an ELF file with no external shared-object
 dependencies, which is the only reason a truly empty base image can run it.
 
+## 🔀 See this in another language
+
+- [TypeScript — 06 · Deployment with Docker](https://sigilipelli.github.io/typescript-mastery-path/level-4/06-deployment-docker/)
+- [C# — 07 · Deployment (Docker for .NET)](https://sigilipelli.github.io/csharp-mastery-path/level-4/07-deployment-docker/)
+- [Go — 06 · Deployment with Docker](https://sigilipelli.github.io/go-mastery-path/level-4/06-deployment-docker/)
+
 ## Exercise
 
 Add a `HEALTHCHECK` instruction to the Dockerfile that curls an `/healthz`

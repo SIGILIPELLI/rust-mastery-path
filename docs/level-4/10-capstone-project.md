@@ -276,3 +276,7 @@ stretch goal exists to relax.
   `rand` crate) with a bounded retry loop on `UNIQUE` constraint violation,
   and write a test that forces a collision to confirm the retry actually
   works rather than just trusting it does.
+
+## 🔀 See this in another language
+
+- [Go — 10 · Capstone: A Production-Shaped URL Shortener](https://sigilipelli.github.io/go-mastery-path/level-4/10-capstone-project/)

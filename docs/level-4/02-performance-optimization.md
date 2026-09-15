@@ -160,6 +160,12 @@ implementation isn't known until runtime), which is when the real
 zero-cost-abstraction gap between the two dispatch strategies actually
 appears in the numbers.
 
+## 🔀 See this in another language
+
+- [TypeScript — 07 · Performance Optimization](https://sigilipelli.github.io/typescript-mastery-path/level-4/07-performance-optimization/)
+- [C — 03 · Performance Optimization & Profiling](https://sigilipelli.github.io/c-mastery-path/level-4/03-performance-profiling/)
+- [C# — 05 · Performance Profiling & Optimization](https://sigilipelli.github.io/csharp-mastery-path/level-4/05-performance-profiling/)
+
 ## Exercise
 
 Add a third string-building variant, `build_report_iter`, using

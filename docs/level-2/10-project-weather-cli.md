@@ -452,3 +452,9 @@ mechanism, scaled up from a toy example to an actual network-calling CLI.
 - Add a `--json` flag that, instead of the human-readable report, prints the
   `WeatherReport` serialized with `serde_json::to_string_pretty` (you'll
   need `#[derive(Serialize)]` on `WeatherReport`).
+
+## 🔀 See this in another language
+
+- [Python — 10 · Project — Weather/Data CLI](https://sigilipelli.github.io/python-mastery-path/level-2/10-project-weather-cli/)
+- [C# — 10 · Project — Weather CLI](https://sigilipelli.github.io/csharp-mastery-path/level-2/10-project-weather-cli/)
+- [Go — 10 · Project — Weather CLI](https://sigilipelli.github.io/go-mastery-path/level-2/10-project-weather-cli/)

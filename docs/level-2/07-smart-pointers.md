@@ -250,6 +250,10 @@ version of `&mut`" — you're deliberately trading the zero-cost compile-time
 guarantee for the flexibility of shared, runtime-checked mutation graphs
 that the ownership model alone can't express.
 
+## 🔀 See this in another language
+
+- [C++ — 06 · Smart Pointers](https://sigilipelli.github.io/cpp-mastery-path/level-2/06-smart-pointers/)
+
 ## Exercise
 
 Model a simple shared shopping cart: define

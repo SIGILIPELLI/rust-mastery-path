@@ -219,6 +219,10 @@ needed.
 | Reference a local crate | `{ path = "../other_crate" }` |
 | Group multiple crates | `[workspace]` + `members = [...]` in the root `Cargo.toml` |
 
+## 🔀 See this in another language
+
+- [Go — 09 · Dependency Management](https://sigilipelli.github.io/go-mastery-path/level-2/09-dependency-management/)
+
 ## Exercise
 
 Create a new binary crate with `cargo new word_stats`. Add `rand = "0.8"` as

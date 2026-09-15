@@ -296,3 +296,9 @@ only one real SQLite connection being shared, not a pool.
 - Swap `std::sync::Mutex<Connection>` for an `r2d2_sqlite` connection pool so
   concurrent requests aren't serialized on a single lock, and measure the
   difference under a quick `wrk` or `hey` load test.
+
+## 🔀 See this in another language
+
+- [Go — 10 · Project: REST API with SQLite](https://sigilipelli.github.io/go-mastery-path/level-3/10-project-rest-api-sqlite/)
+- [Python — 11 · Project — REST API + Database](https://sigilipelli.github.io/python-mastery-path/level-3/11-project-rest-api-db/)
+- [Java — 11 · Project — REST API + Database CRUD Service](https://sigilipelli.github.io/java-mastery-path/level-3/11-project-rest-api-db/)
