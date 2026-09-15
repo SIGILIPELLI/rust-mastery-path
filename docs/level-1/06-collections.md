@@ -1,5 +1,10 @@
 # 06 · Collections (Vec, String, HashMap)
 
+## 🎥 Video walkthrough
+
+<iframe width="100%" height="400" style="max-width:720px;aspect-ratio:16/9;height:auto;" src="https://www.youtube.com/embed/YUY5qKXe_3M" title="Video walkthrough" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
 So far you've worked with single values and fixed-size arrays. Real programs
 need collections that can grow: an ordered, resizable list (`Vec<T>`), a
 growable piece of text (`String`), and a lookup table of key-value pairs

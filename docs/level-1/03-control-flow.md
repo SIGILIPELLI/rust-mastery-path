@@ -1,5 +1,10 @@
 # 03 · Control Flow
 
+## 🎥 Video walkthrough
+
+<iframe width="100%" height="400" style="max-width:720px;aspect-ratio:16/9;height:auto;" src="https://www.youtube.com/embed/xL-G1xJ138g" title="Video walkthrough" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
 Rust's control flow will feel familiar if you've used any C-family language,
 with one big difference: `if` and `loop` are **expressions** — they can
 produce a value you bind directly to a variable, not just branch execution.

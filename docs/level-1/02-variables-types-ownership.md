@@ -1,5 +1,10 @@
 # 02 · Variables, Types & Ownership Basics
 
+## 🎥 Video walkthrough
+
+<iframe width="100%" height="400" style="max-width:720px;aspect-ratio:16/9;height:auto;" src="https://www.youtube.com/embed/-eKjUe0iZ3U" title="Video walkthrough" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
 Rust bindings are immutable by default — a design choice that pushes you
 toward safer code, since the compiler catches accidental reassignment instead
 of letting it silently happen. This module covers variables, the core types,
