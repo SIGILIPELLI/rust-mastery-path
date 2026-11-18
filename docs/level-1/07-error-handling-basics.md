@@ -206,9 +206,9 @@ you discard one without handling it.
 
 ## 🔀 See this in another language
 
-- [Ruby — Classes & Objects Basics](https://sigilipelli.github.io/ruby-mastery-path/level-1/07-classes-objects/)
-- [R — Reading Data](https://sigilipelli.github.io/r-mastery-path/level-1/07-reading-data/)
-- [Java — Classes & Objects Basics](https://sigilipelli.github.io/java-mastery-path/level-1/07-classes-objects/)
+- [Ruby — Classes & Objects Basics](https://learnmasterypath.com/ruby-mastery-path/level-1/07-classes-objects/)
+- [R — Reading Data](https://learnmasterypath.com/r-mastery-path/level-1/07-reading-data/)
+- [Java — Classes & Objects Basics](https://learnmasterypath.com/java-mastery-path/level-1/07-classes-objects/)
 
 ## Exercise
 

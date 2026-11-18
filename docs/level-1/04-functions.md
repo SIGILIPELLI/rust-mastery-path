@@ -197,9 +197,9 @@ that runs.
 
 ## 🔀 See this in another language
 
-- [Ruby — Methods](https://sigilipelli.github.io/ruby-mastery-path/level-1/04-methods/)
-- [R — Functions](https://sigilipelli.github.io/r-mastery-path/level-1/04-functions/)
-- [Java — Methods & Parameters](https://sigilipelli.github.io/java-mastery-path/level-1/04-methods-parameters/)
+- [Ruby — Methods](https://learnmasterypath.com/ruby-mastery-path/level-1/04-methods/)
+- [R — Functions](https://learnmasterypath.com/r-mastery-path/level-1/04-functions/)
+- [Java — Methods & Parameters](https://learnmasterypath.com/java-mastery-path/level-1/04-methods-parameters/)
 
 ## Exercise
 

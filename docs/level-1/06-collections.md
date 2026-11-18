@@ -225,9 +225,9 @@ map at a time.
 
 ## 🔀 See this in another language
 
-- [Ruby — Strings & String Methods](https://sigilipelli.github.io/ruby-mastery-path/level-1/06-strings/)
-- [R — Data Frames Basics](https://sigilipelli.github.io/r-mastery-path/level-1/06-data-frames-basics/)
-- [Java — Strings & String Formatting](https://sigilipelli.github.io/java-mastery-path/level-1/06-strings-formatting/)
+- [Ruby — Strings & String Methods](https://learnmasterypath.com/ruby-mastery-path/level-1/06-strings/)
+- [R — Data Frames Basics](https://learnmasterypath.com/r-mastery-path/level-1/06-data-frames-basics/)
+- [Java — Strings & String Formatting](https://learnmasterypath.com/java-mastery-path/level-1/06-strings-formatting/)
 
 ## Exercise
 

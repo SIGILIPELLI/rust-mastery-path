@@ -254,9 +254,9 @@ the double-free bug ownership exists to make impossible.
 
 ## 🔀 See this in another language
 
-- [Ruby — Variables & Types](https://sigilipelli.github.io/ruby-mastery-path/level-1/02-variables-types/)
-- [R — Variables & Types](https://sigilipelli.github.io/r-mastery-path/level-1/02-variables-types/)
-- [Java — Variables, Data Types & Operators](https://sigilipelli.github.io/java-mastery-path/level-1/02-variables-data-types/)
+- [Ruby — Variables & Types](https://learnmasterypath.com/ruby-mastery-path/level-1/02-variables-types/)
+- [R — Variables & Types](https://learnmasterypath.com/r-mastery-path/level-1/02-variables-types/)
+- [Java — Variables, Data Types & Operators](https://learnmasterypath.com/java-mastery-path/level-1/02-variables-data-types/)
 
 ## Exercise
 

@@ -200,6 +200,6 @@ Completing this project means you're ready for **Level 2 · Intermediate**.
 
 ## 🔀 See this in another language
 
-- [Ruby — Project — CLI To-Do App](https://sigilipelli.github.io/ruby-mastery-path/level-1/10-project-todo-app/)
-- [R — Project — Data Analysis Script](https://sigilipelli.github.io/r-mastery-path/level-1/10-project-data-analysis/)
-- [Java — Project — CLI Contact Book](https://sigilipelli.github.io/java-mastery-path/level-1/10-project-contact-book/)
+- [Ruby — Project — CLI To-Do App](https://learnmasterypath.com/ruby-mastery-path/level-1/10-project-todo-app/)
+- [R — Project — Data Analysis Script](https://learnmasterypath.com/r-mastery-path/level-1/10-project-data-analysis/)
+- [Java — Project — CLI Contact Book](https://learnmasterypath.com/java-mastery-path/level-1/10-project-contact-book/)

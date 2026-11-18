@@ -172,9 +172,9 @@ forgotten.
 
 ## 🔀 See this in another language
 
-- [Ruby — Blocks, Procs & Lambdas Introduction](https://sigilipelli.github.io/ruby-mastery-path/level-1/08-blocks-procs-lambdas/)
-- [R — Basic Plotting](https://sigilipelli.github.io/r-mastery-path/level-1/08-basic-plotting/)
-- [Java — Exception Handling Basics](https://sigilipelli.github.io/java-mastery-path/level-1/08-exception-handling/)
+- [Ruby — Blocks, Procs & Lambdas Introduction](https://learnmasterypath.com/ruby-mastery-path/level-1/08-blocks-procs-lambdas/)
+- [R — Basic Plotting](https://learnmasterypath.com/r-mastery-path/level-1/08-basic-plotting/)
+- [Java — Exception Handling Basics](https://learnmasterypath.com/java-mastery-path/level-1/08-exception-handling/)
 
 ## Exercise
 

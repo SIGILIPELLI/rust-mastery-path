@@ -279,4 +279,4 @@ stretch goal exists to relax.
 
 ## 🔀 See this in another language
 
-- [Go — 10 · Capstone: A Production-Shaped URL Shortener](https://sigilipelli.github.io/go-mastery-path/level-4/10-capstone-project/)
+- [Go — 10 · Capstone: A Production-Shaped URL Shortener](https://learnmasterypath.com/go-mastery-path/level-4/10-capstone-project/)

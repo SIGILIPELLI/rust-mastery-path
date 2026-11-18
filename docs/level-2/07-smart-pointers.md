@@ -252,7 +252,7 @@ that the ownership model alone can't express.
 
 ## 🔀 See this in another language
 
-- [C++ — 06 · Smart Pointers](https://sigilipelli.github.io/cpp-mastery-path/level-2/06-smart-pointers/)
+- [C++ — 06 · Smart Pointers](https://learnmasterypath.com/cpp-mastery-path/level-2/06-smart-pointers/)
 
 ## Exercise
 

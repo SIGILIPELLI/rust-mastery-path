@@ -181,9 +181,9 @@ where that promise actually gets cashed in.
 
 ## 🔀 See this in another language
 
-- [Ruby — Setup & First Program](https://sigilipelli.github.io/ruby-mastery-path/level-1/01-setup/)
-- [R — Setup & First Script](https://sigilipelli.github.io/r-mastery-path/level-1/01-setup/)
-- [Java — Setup & First Program](https://sigilipelli.github.io/java-mastery-path/level-1/01-setup/)
+- [Ruby — Setup & First Program](https://learnmasterypath.com/ruby-mastery-path/level-1/01-setup/)
+- [R — Setup & First Script](https://learnmasterypath.com/r-mastery-path/level-1/01-setup/)
+- [Java — Setup & First Program](https://learnmasterypath.com/java-mastery-path/level-1/01-setup/)
 
 ## Exercise
 

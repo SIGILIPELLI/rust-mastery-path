@@ -221,7 +221,7 @@ needed.
 
 ## 🔀 See this in another language
 
-- [Go — 09 · Dependency Management](https://sigilipelli.github.io/go-mastery-path/level-2/09-dependency-management/)
+- [Go — 09 · Dependency Management](https://learnmasterypath.com/go-mastery-path/level-2/09-dependency-management/)
 
 ## Exercise
 

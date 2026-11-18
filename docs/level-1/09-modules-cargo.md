@@ -202,9 +202,9 @@ build time.
 
 ## 🔀 See this in another language
 
-- [Ruby — Gems & Bundler Basics](https://sigilipelli.github.io/ruby-mastery-path/level-1/09-gems-bundler/)
-- [R — Packages](https://sigilipelli.github.io/r-mastery-path/level-1/09-packages/)
-- [Java — Packages & Build Tools Intro](https://sigilipelli.github.io/java-mastery-path/level-1/09-packages-build-tools/)
+- [Ruby — Gems & Bundler Basics](https://learnmasterypath.com/ruby-mastery-path/level-1/09-gems-bundler/)
+- [R — Packages](https://learnmasterypath.com/r-mastery-path/level-1/09-packages/)
+- [Java — Packages & Build Tools Intro](https://learnmasterypath.com/java-mastery-path/level-1/09-packages-build-tools/)
 
 ## Exercise
 

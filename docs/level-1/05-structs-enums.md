@@ -203,9 +203,9 @@ compiler optimizes exactly like anything else.
 
 ## 🔀 See this in another language
 
-- [Ruby — Arrays & Hashes](https://sigilipelli.github.io/ruby-mastery-path/level-1/05-arrays-hashes/)
-- [R — Vectors & Basic Data Structures](https://sigilipelli.github.io/r-mastery-path/level-1/05-vectors-data-structures/)
-- [Java — Arrays & Basic Collections](https://sigilipelli.github.io/java-mastery-path/level-1/05-arrays-collections/)
+- [Ruby — Arrays & Hashes](https://learnmasterypath.com/ruby-mastery-path/level-1/05-arrays-hashes/)
+- [R — Vectors & Basic Data Structures](https://learnmasterypath.com/r-mastery-path/level-1/05-vectors-data-structures/)
+- [Java — Arrays & Basic Collections](https://learnmasterypath.com/java-mastery-path/level-1/05-arrays-collections/)
 
 ## Exercise
 

@@ -455,6 +455,6 @@ mechanism, scaled up from a toy example to an actual network-calling CLI.
 
 ## 🔀 See this in another language
 
-- [Python — 10 · Project — Weather/Data CLI](https://sigilipelli.github.io/python-mastery-path/level-2/10-project-weather-cli/)
-- [C# — 10 · Project — Weather CLI](https://sigilipelli.github.io/csharp-mastery-path/level-2/10-project-weather-cli/)
-- [Go — 10 · Project — Weather CLI](https://sigilipelli.github.io/go-mastery-path/level-2/10-project-weather-cli/)
+- [Python — 10 · Project — Weather/Data CLI](https://learnmasterypath.com/python-mastery-path/level-2/10-project-weather-cli/)
+- [C# — 10 · Project — Weather CLI](https://learnmasterypath.com/csharp-mastery-path/level-2/10-project-weather-cli/)
+- [Go — 10 · Project — Weather CLI](https://learnmasterypath.com/go-mastery-path/level-2/10-project-weather-cli/)
