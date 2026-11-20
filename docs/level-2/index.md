@@ -1,3 +1,7 @@
+---
+description: "Level 2 (Intermediate) of the free Rust Mastery Path: Ownership & Borrowing Deep Dive, Lifetimes, Traits & Generics, Closures & Iterators, Error Handling…"
+---
+
 # Level 2 · Intermediate
 
 ## Modules

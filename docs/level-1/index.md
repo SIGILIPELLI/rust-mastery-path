@@ -1,3 +1,7 @@
+---
+description: "Level 1 (Entry) of the free Rust Mastery Path. Get comfortable reading and writing Rust, understand ownership — the concept that sets Rust apart — and ship…"
+---
+
 # Level 1 · Entry <span class="level-badge">Foundations</span>
 
 Goal: get comfortable reading and writing Rust, understand ownership — the

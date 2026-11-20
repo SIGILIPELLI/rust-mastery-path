@@ -1,3 +1,7 @@
+---
+description: "Level 3 (Advanced) of the free Rust Mastery Path: Concurrency, Async/Await Basics, Building CLIs with clap, Working with Databases (rusqlite), Building Web…"
+---
+
 # Level 3 · Advanced
 
 ## Modules

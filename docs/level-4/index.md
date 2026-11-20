@@ -1,3 +1,7 @@
+---
+description: "Level 4 (Master) of the free Rust Mastery Path: Advanced Async Patterns, Performance Optimization, Macros, Building Production Services, Security & Memory…"
+---
+
 # Level 4 · Master
 
 ## Modules
