@@ -300,5 +300,5 @@ only one real SQLite connection being shared, not a pool.
 ## 🔀 See this in another language
 
 - [Go — 10 · Project: REST API with SQLite](https://learnmasterypath.com/go-mastery-path/level-3/10-project-rest-api-sqlite/)
-- [Python — 11 · Project — REST API + Database](https://learnmasterypath.com/python-mastery-path/level-3/11-project-rest-api-db/)
-- [Java — 11 · Project — REST API + Database CRUD Service](https://learnmasterypath.com/java-mastery-path/level-3/11-project-rest-api-db/)
+- [Python — 11 · Project — REST API + Database](https://learnmasterypath.com/python-mastery-path/level-3/10-project-rest-api-db/)
+- [Java — 11 · Project — REST API + Database CRUD Service](https://learnmasterypath.com/java-mastery-path/level-3/10-project-rest-api-db/)
